@@ -51,6 +51,7 @@ class SamplePage extends StatelessWidget {
                   child: Text("쉽지않아"),
                   onPressed: () => Navigator.pushNamed(context, "mainPage",
                       arguments: RouteArgument(id: 2,title:"쉽지않아")))
+
             ],
           ));
   }
