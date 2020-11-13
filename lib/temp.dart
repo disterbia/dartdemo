@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_midi_example/model/routeArgument.dart';
+import 'package:flutter_midi_example/model/song.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MyApp extends StatefulWidget {
@@ -9,59 +9,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var _song = {
-    0: {
-      0: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-      1: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-      2: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-    },
-    1: {
-      0: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-      1: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-      2: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-    },
-    2: {
-      0: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-      1: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-      2: [
-        ["06_20", "14_20", "21_40"],
-        ["27_30", "34_30", "40_40"],
-        ["47_40", "54_40", "60_40"]
-      ],
-    }
-  };
+  int madiCheck = 0;
+  int count = 0;
+  List<List<Note>> sheet = [];
+  List<Note> list = [];
 
   @override
   void initState() {
@@ -74,13 +25,32 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final RouteArgument song = ModalRoute.of(context).settings.arguments;
-    print(_song[song.id]);
-    var target = _song[song.id];
-    var title = song.title;
-    print(title);
-    print(target);
-    print(_song.runtimeType);
+    var width = MediaQuery.of(context).size.width;
+    final Song song = ModalRoute.of(context).settings.arguments;
+    int madiNotes;
+    if (song.rhythmUpper == 3 && song.rhythmUnder == 4) {
+      madiNotes = 60;
+    } else if (song.rhythmUpper == 4 && song.rhythmUnder == 4) {
+      madiNotes = 80;
+    } else if (song.rhythmUpper == 6 && song.rhythmUnder == 8) {
+      madiNotes = 60;
+    }
+
+    song.notes.forEach((note) {
+      madiCheck += note.leng;
+      if (madiCheck <= madiNotes) {
+        list.add(note);
+        if (song.notes.length == list.length) sheet.add(list.sublist(count));
+      } else {
+        sheet.add(list.sublist(count));
+        count = list.length;
+        list.add(note);
+        madiCheck = note.leng;
+      }
+    });
+
+    var row = 0;
+    print(sheet.length);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -91,7 +61,7 @@ class _MyAppState extends State<MyApp> {
           children: [
             Expanded(
               child: Center(
-                child: Text(title, style: TextStyle(fontSize: 20)),
+                child: Text(song.title, style: TextStyle(fontSize: 20)),
                 heightFactor: 2,
               ),
               flex: 0,
@@ -99,9 +69,10 @@ class _MyAppState extends State<MyApp> {
             Expanded(
               child: ListView.separated(
                 itemBuilder: (context, index) {
-                  return madi(target[index]);
+                  return madi(sheet.sublist(index * 3), song.rhythmUnder,
+                      song.rhythmUpper, song.tempo);
                 },
-                itemCount: target.keys.length,
+                itemCount: (sheet.length / 3).ceil(),
                 separatorBuilder: (context, index) {
                   return Text("  ");
                 },
@@ -113,7 +84,9 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget madi(List<List<String>> body) {
+  Widget madi(
+      List<List<Note>> body, int rhythmUnder, int rhythmUpper, int tempo) {
+    bool isfirst =true;
     List<Widget> list = List<Widget>();
     list.add(Container(
       width: double.infinity,
@@ -122,24 +95,13 @@ class _MyAppState extends State<MyApp> {
         fit: BoxFit.fill,
       ),
     ));
-    var s = 0.0;
-    for (var i = 0; i < body[0].length; i++) {
-      print(i);
-      list.add(Positioned(
-        bottom: int.parse(body[0][i].substring(0, 2)) < 46
-            ? int.parse(body[0][i].substring(0, 2)).toDouble()
-            : int.parse(body[0][i].substring(0, 2)).toDouble() - 30,
-        left: i != 0
-            ? s += int.parse(body[0][i].substring(3)).toDouble() + 30
-            : s = 20,
-        child: SvgPicture.asset(
-          int.parse(body[0][i].substring(0, 2)) < 46
-              ? "assets/note${body[0][i].substring(3)}.svg"
-              : "assets/note${body[0][i].substring(3)}_2.svg",
-          color: Colors.deepOrange,
-        ),
-      ));
-    }
+    list.add(Positioned(
+      child: SvgPicture.asset(
+        "assets/start.svg",
+        height: 70,
+      ),
+      height: 100,
+    ));
 
     List<Widget> list2 = List<Widget>();
     list2.add(Container(
@@ -149,24 +111,7 @@ class _MyAppState extends State<MyApp> {
         fit: BoxFit.fill,
       ),
     ));
-    var s2 = 0.0;
-    for (var i = 0; i < body[1].length; i++) {
-      print(i);
-      list2.add(Positioned(
-        bottom: int.parse(body[1][i].substring(0, 2)) < 46
-            ? int.parse(body[1][i].substring(0, 2)).toDouble()
-            : int.parse(body[1][i].substring(0, 2)).toDouble() - 30,
-        left: i != 0
-            ? s2 += int.parse(body[1][i].substring(3)).toDouble() + 30
-            : s2 = 20,
-        child: SvgPicture.asset(
-          int.parse(body[1][i].substring(0, 2)) < 46
-              ? "assets/note${body[1][i].substring(3)}.svg"
-              : "assets/note${body[1][i].substring(3)}_2.svg",
-          color: Colors.deepOrange,
-        ),
-      ));
-    }
+
     List<Widget> list3 = List<Widget>();
     list3.add(Container(
       width: double.infinity,
@@ -176,24 +121,57 @@ class _MyAppState extends State<MyApp> {
       ),
     ));
 
-    var s3 = 30.0;
-    for (var i = 0; i < body[2].length; i++) {
-      print(i);
-      list3.add(Positioned(
-        bottom: int.parse(body[2][i].substring(0, 2)) < 46
-            ? int.parse(body[2][i].substring(0, 2)).toDouble()
-            : int.parse(body[2][i].substring(0, 2)).toDouble() - 33,
-        left: i != 0
-            ? s3 += int.parse(body[2][i].substring(3)).toDouble() + 30
-            : s3,
+    var s = 0.0;
+    for (var i = 0; i < body[0].length; i++) {
+      list.add(Positioned(
+        bottom: body[0][i].pitch < 46
+            ? body[0][i].pitch.toDouble()
+            : body[0][i].pitch.toDouble() - 40,
+        left: i != 0 ? s += body[0][i].leng.toDouble() + 20 : s = 60,
         child: SvgPicture.asset(
-          int.parse(body[2][i].substring(0, 2)) < 46
-              ? "assets/note${body[2][i].substring(3)}.svg"
-              : "assets/note${body[2][i].substring(3)}_2.svg",
-          color: Colors.deepOrange,
+          body[0][i].pitch < 47
+              ? "assets/note${body[0][i].leng}.svg"
+              : "assets/note${body[0][i].leng}_2.svg",
+          color: Colors.black,
         ),
       ));
     }
+
+    if (body.length > 1) {
+      var s2 = 0.0;
+      for (var i = 0; i < body[1].length; i++) {
+        list2.add(Positioned(
+          bottom: body[1][i].pitch < 47
+              ? body[1][i].pitch.toDouble()
+              : body[1][i].pitch.toDouble() - 40,
+          left: i != 0 ? s2 += body[1][i].leng.toDouble() + 20 : s2 = 20,
+          child: SvgPicture.asset(
+            body[1][i].pitch < 47
+                ? "assets/note${body[1][i].leng}.svg"
+                : "assets/note${body[1][i].leng}_2.svg",
+            color: Colors.black,
+          ),
+        ));
+      }
+    }
+    if (body.length > 2) {
+      var s3 = 30.0;
+      for (var i = 0; i < body[2].length; i++) {
+        list3.add(Positioned(
+          bottom: body[2][i].pitch < 46
+              ? body[2][i].pitch.toDouble()
+              : body[2][i].pitch.toDouble() - 40,
+          left: i != 0 ? s3 += body[2][i].leng.toDouble() + 20 : s3 = 20,
+          child: SvgPicture.asset(
+            body[2][i].pitch < 46
+                ? "assets/note${body[2][i].leng}.svg"
+                : "assets/note${body[2][i].leng}_2.svg",
+            color: Colors.black,
+          ),
+        ));
+      }
+    }
+
     return Container(
       child: Row(
         children: [
