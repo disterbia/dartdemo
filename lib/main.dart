@@ -11,26 +11,10 @@ import 'package:flutter_midi_example/temp.dart';
 
 /// main is entry point of Flutter application
 void main() {
-  // Desktop platforms aren't a valid platform.
-  if (!kIsWeb) _setTargetPlatformForDesktop();
   return runApp(MaterialApp(
       home: SamplePage(), routes: {"mainPage": (context) => MyApp()}));
 }
 
-/// If the current platform is desktop, override the default platform to
-/// a supported platform (iOS for macOS, Android for Linux and Windows).
-/// Otherwise, do nothing.
-void _setTargetPlatformForDesktop() {
-  TargetPlatform targetPlatform;
-  if (Platform.isMacOS) {
-    targetPlatform = TargetPlatform.iOS;
-  } else if (Platform.isLinux || Platform.isWindows) {
-    targetPlatform = TargetPlatform.android;
-  }
-  if (targetPlatform != null) {
-    debugDefaultTargetPlatformOverride = targetPlatform;
-  }
-}
 //도:6레:14미:21파:27솔:34라:40시:47도:54레:64
 class SamplePage extends StatelessWidget {
   var song = {

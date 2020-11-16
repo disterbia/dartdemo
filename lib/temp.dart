@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi_example/model/song.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pitchdetector/pitchdetector.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -13,6 +17,15 @@ class _MyAppState extends State<MyApp> {
   int count = 0;
   List<List<Note>> sheet = [];
   List<Note> list = [];
+  int isStart = 0;
+  List<int> score = [];
+  int isFirst = 0;
+  Song song;
+  bool isDisposed = false;
+
+  Pitchdetector detector;
+  bool isRecording = false;
+  double pitch;
 
   @override
   void initState() {
@@ -21,54 +34,95 @@ class _MyAppState extends State<MyApp> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+    detector = Pitchdetector(sampleRate: 44100, sampleSize: 4096);
+    isRecording = isRecording;
+    detector.onRecorderStateChanged.listen((event) {
+      if (!isDisposed) {
+        setState(() {
+          pitch = event["pitch"];
+          print(pitch);
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+    isDisposed = true;
+    detector.stopRecording();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).orientation == Orientation.portrait)
+      return Container();
+
     var width = MediaQuery.of(context).size.width;
-    final Song song = ModalRoute.of(context).settings.arguments;
-    int madiNotes;
-    if (song.rhythmUpper == 3 && song.rhythmUnder == 4) {
-      madiNotes = 60;
-    } else if (song.rhythmUpper == 4 && song.rhythmUnder == 4) {
-      madiNotes = 80;
-    } else if (song.rhythmUpper == 6 && song.rhythmUnder == 8) {
-      madiNotes = 60;
-    }
-
-    song.notes.forEach((note) {
-      madiCheck += note.leng;
-      if (madiCheck <= madiNotes) {
-        list.add(note);
-        if (song.notes.length == list.length) sheet.add(list.sublist(count));
-      } else {
-        sheet.add(list.sublist(count));
-        count = list.length;
-        list.add(note);
-        madiCheck = note.leng;
+    song = ModalRoute.of(context).settings.arguments;
+    if (isFirst == 0) {
+      for (var i = 0; i < song.notes.length; i++) {
+        score.add(0);
       }
-    });
+      int madiNotes;
+      if (song.rhythmUpper == 3 && song.rhythmUnder == 4) {
+        madiNotes = 60;
+      } else if (song.rhythmUpper == 4 && song.rhythmUnder == 4) {
+        madiNotes = 80;
+      } else if (song.rhythmUpper == 6 && song.rhythmUnder == 8) {
+        madiNotes = 60;
+      }
 
-    var row = 0;
-    print(sheet.length);
+      song.notes.forEach((note) {
+        madiCheck += note.leng;
+        if (madiCheck <= madiNotes) {
+          list.add(note);
+          if (song.notes.length == list.length) sheet.add(list.sublist(count));
+        } else {
+          sheet.add(list.sublist(count));
+          count = list.length;
+          list.add(note);
+          madiCheck = note.leng;
+        }
+      });
+      isFirst++;
+    }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          title: Text("Recorder"),
-        ),
+        floatingActionButton: FloatingActionButton(onPressed: () {
+          print(isRecording);
+          isRecording ? stopRecording() : startRecording();
+          if (!isDisposed) {
+            for (var i = 0; i < score.length; i++){
+               sleep(Duration(seconds: 1));
+               setState(() {
+                print(i);
+                score[i] = 1;
+                print(score[i]);
+                print(score[i + 1]);
+              });
+            }
+          }
+        }),
         body: Column(
           children: [
             Expanded(
-              child: Center(
-                child: Text(song.title, style: TextStyle(fontSize: 20)),
-                heightFactor: 2,
+              child: Container(
+                  child: Text(song.title, style: TextStyle(fontSize: 20)),margin: EdgeInsets.only(top: 40,bottom: 20),
               ),
               flex: 0,
             ),
             Expanded(
               child: ListView.separated(
                 itemBuilder: (context, index) {
+                  index == 0 ? isStart = 0 : isStart = 1;
                   return madi(sheet.sublist(index * 3), song.rhythmUnder,
                       song.rhythmUpper, song.tempo);
                 },
@@ -86,7 +140,6 @@ class _MyAppState extends State<MyApp> {
 
   Widget madi(
       List<List<Note>> body, int rhythmUnder, int rhythmUpper, int tempo) {
-    bool isfirst =true;
     List<Widget> list = List<Widget>();
     list.add(Container(
       width: double.infinity,
@@ -102,6 +155,22 @@ class _MyAppState extends State<MyApp> {
       ),
       height: 100,
     ));
+    if (isStart == 0) {
+      list.add(Positioned(
+          child: Text(
+            rhythmUpper.toString(),
+            style: TextStyle(fontSize: 35),
+          ),
+          left: 35,
+          top: 20));
+      list.add(Positioned(
+          child: Text(
+            rhythmUnder.toString(),
+            style: TextStyle(fontSize: 35),
+          ),
+          left: 35,
+          top: 46));
+    }
 
     List<Widget> list2 = List<Widget>();
     list2.add(Container(
@@ -127,13 +196,14 @@ class _MyAppState extends State<MyApp> {
         bottom: body[0][i].pitch < 46
             ? body[0][i].pitch.toDouble()
             : body[0][i].pitch.toDouble() - 40,
-        left: i != 0 ? s += body[0][i].leng.toDouble() + 20 : s = 60,
+        left: i != 0
+            ? s += body[0][i].leng.toDouble() + 20
+            : s = isStart == 0 ? 80 : 60,
         child: SvgPicture.asset(
-          body[0][i].pitch < 47
-              ? "assets/note${body[0][i].leng}.svg"
-              : "assets/note${body[0][i].leng}_2.svg",
-          color: Colors.black,
-        ),
+            body[0][i].pitch < 47
+                ? "assets/note${body[0][i].leng}.svg"
+                : "assets/note${body[0][i].leng}_2.svg",
+            color: score[i] == 0 ? Colors.black : Colors.orange),
       ));
     }
 
@@ -146,11 +216,10 @@ class _MyAppState extends State<MyApp> {
               : body[1][i].pitch.toDouble() - 40,
           left: i != 0 ? s2 += body[1][i].leng.toDouble() + 20 : s2 = 20,
           child: SvgPicture.asset(
-            body[1][i].pitch < 47
-                ? "assets/note${body[1][i].leng}.svg"
-                : "assets/note${body[1][i].leng}_2.svg",
-            color: Colors.black,
-          ),
+              body[1][i].pitch < 47
+                  ? "assets/note${body[1][i].leng}.svg"
+                  : "assets/note${body[1][i].leng}_2.svg",
+              color: score[i] == 0 ? Colors.black : Colors.orange),
         ));
       }
     }
@@ -163,11 +232,10 @@ class _MyAppState extends State<MyApp> {
               : body[2][i].pitch.toDouble() - 40,
           left: i != 0 ? s3 += body[2][i].leng.toDouble() + 20 : s3 = 20,
           child: SvgPicture.asset(
-            body[2][i].pitch < 46
-                ? "assets/note${body[2][i].leng}.svg"
-                : "assets/note${body[2][i].leng}_2.svg",
-            color: Colors.black,
-          ),
+              body[2][i].pitch < 46
+                  ? "assets/note${body[2][i].leng}.svg"
+                  : "assets/note${body[2][i].leng}_2.svg",
+              color: score[i] == 0 ? Colors.black : Colors.orange),
         ));
       }
     }
@@ -194,7 +262,20 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  int madiCount(Map<int, List<String>> body) {
-    return body.keys.length;
+  void startRecording() async {
+    await detector.startRecording();
+    if (detector.isRecording) {
+      setState(() {
+        isRecording = true;
+      });
+    }
+  }
+
+  void stopRecording() async {
+    detector.stopRecording();
+    setState(() {
+      isRecording = false;
+      pitch = detector.pitch;
+    });
   }
 }

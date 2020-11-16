@@ -11,13 +11,11 @@ dependencies:
 
   cupertino_icons: ^0.1.2
   flutter_svg: ^0.19.1
+  pitchdetector: ^0.0.3+6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_midi:
-    path: ../flutter_midi
 
 flutter:
 
