@@ -19,6 +19,7 @@ class _MyAppState extends State<MyApp> {
   List<Note> list = [];
   int isStart = 0;
   List<int> score = [];
+  List<List<int>> check= [];
   int isFirst = 0;
   Song song;
   bool isDisposed = false;
@@ -67,9 +68,6 @@ class _MyAppState extends State<MyApp> {
     var width = MediaQuery.of(context).size.width;
     song = ModalRoute.of(context).settings.arguments;
     if (isFirst == 0) {
-      for (var i = 0; i < song.notes.length; i++) {
-        score.add(0);
-      }
       int madiNotes;
       if (song.rhythmUpper == 3 && song.rhythmUnder == 4) {
         madiNotes = 60;
@@ -83,11 +81,17 @@ class _MyAppState extends State<MyApp> {
         madiCheck += note.leng;
         if (madiCheck <= madiNotes) {
           list.add(note);
-          if (song.notes.length == list.length) sheet.add(list.sublist(count));
+          score.add(0);
+          if (song.notes.length == list.length) {
+            sheet.add(list.sublist(count));
+            check.add(score.sublist(count));
+          }
         } else {
           sheet.add(list.sublist(count));
+          check.add(score.sublist(count));
           count = list.length;
           list.add(note);
+          score.add(0);
           madiCheck = note.leng;
         }
       });
@@ -96,18 +100,20 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        floatingActionButton: FloatingActionButton(onPressed: () {
+        floatingActionButton: FloatingActionButton(onPressed: () async{
           print(isRecording);
           isRecording ? stopRecording() : startRecording();
           if (!isDisposed) {
-            for (var i = 0; i < score.length; i++){
-               sleep(Duration(seconds: 1));
-               setState(() {
-                print(i);
-                score[i] = 1;
-                print(score[i]);
-                print(score[i + 1]);
-              });
+            for(var j = 0;j <check.length;j++){
+              for (var i = 0; i < check[j].length; i++){
+                await Future.delayed(Duration(seconds: 1),(){
+                  setState(() {
+                    check[j][i] = 1;
+                    print(check[j][i]);
+                  });
+                });
+
+              }
             }
           }
         }),
@@ -124,7 +130,7 @@ class _MyAppState extends State<MyApp> {
                 itemBuilder: (context, index) {
                   index == 0 ? isStart = 0 : isStart = 1;
                   return madi(sheet.sublist(index * 3), song.rhythmUnder,
-                      song.rhythmUpper, song.tempo);
+                      song.rhythmUpper, song.tempo,check.sublist(index*3));
                 },
                 itemCount: (sheet.length / 3).ceil(),
                 separatorBuilder: (context, index) {
@@ -139,7 +145,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget madi(
-      List<List<Note>> body, int rhythmUnder, int rhythmUpper, int tempo) {
+      List<List<Note>> body, int rhythmUnder, int rhythmUpper, int tempo,List<List<int>> scoreCheck) {
     List<Widget> list = List<Widget>();
     list.add(Container(
       width: double.infinity,
@@ -155,6 +161,7 @@ class _MyAppState extends State<MyApp> {
       ),
       height: 100,
     ));
+
     if (isStart == 0) {
       list.add(Positioned(
           child: Text(
@@ -203,7 +210,7 @@ class _MyAppState extends State<MyApp> {
             body[0][i].pitch < 47
                 ? "assets/note${body[0][i].leng}.svg"
                 : "assets/note${body[0][i].leng}_2.svg",
-            color: score[i] == 0 ? Colors.black : Colors.orange),
+            color: scoreCheck[0][i] == 0 ? Colors.black : Colors.orange),
       ));
     }
 
@@ -219,10 +226,11 @@ class _MyAppState extends State<MyApp> {
               body[1][i].pitch < 47
                   ? "assets/note${body[1][i].leng}.svg"
                   : "assets/note${body[1][i].leng}_2.svg",
-              color: score[i] == 0 ? Colors.black : Colors.orange),
+              color: scoreCheck[1][i] == 0 ? Colors.black : Colors.orange),
         ));
       }
     }
+
     if (body.length > 2) {
       var s3 = 30.0;
       for (var i = 0; i < body[2].length; i++) {
@@ -235,7 +243,7 @@ class _MyAppState extends State<MyApp> {
               body[2][i].pitch < 46
                   ? "assets/note${body[2][i].leng}.svg"
                   : "assets/note${body[2][i].leng}_2.svg",
-              color: score[i] == 0 ? Colors.black : Colors.orange),
+              color: scoreCheck[2][i] == 0 ? Colors.black : Colors.orange),
         ));
       }
     }
