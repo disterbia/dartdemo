@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_midi_example/model/song.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pitchdetector/pitchdetector.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -23,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   int isFirst = 0;
   Song song;
   bool isDisposed = false;
+  ItemScrollController scrollController = ItemScrollController();
 
   Pitchdetector detector;
   bool isRecording = false;
@@ -66,7 +68,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     // if (MediaQuery.of(context).orientation == Orientation.portrait)
     //   return Container();
-
     var width = MediaQuery.of(context).size.width;
     song = ModalRoute.of(context).settings.arguments;
     if (isFirst == 0) {
@@ -108,10 +109,22 @@ class _MyAppState extends State<MyApp> {
           if (!isDisposed) {
             for(var j = 0;j <check.length;j++){
               for (var i = 0; i < check[j].length; i++){
-                await Future.delayed(Duration(seconds: 1),(){
+                await Future.delayed(Duration(milliseconds: 500),(){
                   if(!isDisposed){
                     setState(() {
                       check[j][i] = 1;
+                      print(check[j][i]);
+                    });
+                  }
+                });
+                if(!isDisposed)
+                  if((j+1)%3==1&&j!=0)scrollController.scrollTo(index: (j+1)~/3, duration: Duration(milliseconds: 500));
+                await Future.delayed(Duration(milliseconds: 500),(){
+                  if(!isDisposed){
+                    setState(() {
+                      print((pitch??0).ceil());
+                      (pitch??0).ceil().toInt()>300?check[j][i] = 2:check[j][i] =3;
+                      pitch=0;
                       print(check[j][i]);
                     });
                   }
@@ -130,7 +143,8 @@ class _MyAppState extends State<MyApp> {
               flex: 0,
             ),
             Expanded(
-              child: ListView.separated(
+              child: ScrollablePositionedList.separated(
+                itemScrollController: scrollController,
                 itemBuilder: (context, index) {
                   index == 0 ? isStart = 0 : isStart = 1;
                   return madi(sheet.sublist(index * 3), song.rhythmUnder,
@@ -214,7 +228,7 @@ class _MyAppState extends State<MyApp> {
             body[0][i].pitch < 47
                 ? "assets/note${body[0][i].leng}.svg"
                 : "assets/note${body[0][i].leng}_2.svg",
-            color: scoreCheck[0][i] == 0 ? Colors.black : Colors.orange),
+            color: scoreCheck[0][i] == 0 ? Colors.black : scoreCheck[0][i] == 1 ?Colors.orange:scoreCheck[0][i] == 2 ?Colors.greenAccent:Colors.red),
       ));
     }
 
@@ -230,7 +244,7 @@ class _MyAppState extends State<MyApp> {
               body[1][i].pitch < 47
                   ? "assets/note${body[1][i].leng}.svg"
                   : "assets/note${body[1][i].leng}_2.svg",
-              color: scoreCheck[1][i] == 0 ? Colors.black : Colors.orange),
+              color: scoreCheck[1][i] == 0 ? Colors.black : scoreCheck[1][i] == 1 ?Colors.orange:scoreCheck[1][i] == 2 ?Colors.greenAccent:Colors.red),
         ));
       }
     }
@@ -247,7 +261,7 @@ class _MyAppState extends State<MyApp> {
               body[2][i].pitch < 46
                   ? "assets/note${body[2][i].leng}.svg"
                   : "assets/note${body[2][i].leng}_2.svg",
-              color: scoreCheck[2][i] == 0 ? Colors.black : Colors.orange),
+              color: scoreCheck[2][i] == 0 ? Colors.black : scoreCheck[2][i] == 1 ?Colors.orange:scoreCheck[2][i] == 2 ?Colors.greenAccent:Colors.red),
         ));
       }
     }

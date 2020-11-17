@@ -12,6 +12,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   flutter_svg: ^0.19.1
   pitchdetector: ^0.0.3+6
+  scrollable_positioned_list: ^0.1.8
 
 dev_dependencies:
   flutter_test:
