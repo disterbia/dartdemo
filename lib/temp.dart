@@ -34,6 +34,8 @@ class _MyAppState extends State<MyApp> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
     ]);
     detector = Pitchdetector(sampleRate: 44100, sampleSize: 4096);
     isRecording = isRecording;
@@ -49,21 +51,21 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.landscapeRight,
+    //   DeviceOrientation.landscapeLeft,
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.portraitDown,
+    // ]);
     super.dispose();
     isDisposed = true;
-    detector.stopRecording();
+    if(isRecording==true)detector.stopRecording();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.of(context).orientation == Orientation.portrait)
-      return Container();
+    // if (MediaQuery.of(context).orientation == Orientation.portrait)
+    //   return Container();
 
     var width = MediaQuery.of(context).size.width;
     song = ModalRoute.of(context).settings.arguments;
@@ -107,10 +109,12 @@ class _MyAppState extends State<MyApp> {
             for(var j = 0;j <check.length;j++){
               for (var i = 0; i < check[j].length; i++){
                 await Future.delayed(Duration(seconds: 1),(){
-                  setState(() {
-                    check[j][i] = 1;
-                    print(check[j][i]);
-                  });
+                  if(!isDisposed){
+                    setState(() {
+                      check[j][i] = 1;
+                      print(check[j][i]);
+                    });
+                  }
                 });
 
               }
@@ -121,7 +125,7 @@ class _MyAppState extends State<MyApp> {
           children: [
             Expanded(
               child: Container(
-                  child: Text(song.title, style: TextStyle(fontSize: 20)),margin: EdgeInsets.only(top: 40,bottom: 20),
+                child: Text(song.title, style: TextStyle(fontSize: 20)),margin: EdgeInsets.only(top: 40,bottom: 20),
               ),
               flex: 0,
             ),
