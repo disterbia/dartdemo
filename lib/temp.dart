@@ -21,7 +21,7 @@ class _MyAppState extends State<MyApp> {
   int isStart = 0;
   List<int> score = [];
   List<List<int>> check = [];
-  int isFirst = 0;
+  bool isFirst = true;
   Song song;
   bool isDisposed = false;
   ItemScrollController scrollController = ItemScrollController();
@@ -68,9 +68,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     // if (MediaQuery.of(context).orientation == Orientation.portrait)
     //   return Container();
-    var width = MediaQuery.of(context).size.width;
     song = ModalRoute.of(context).settings.arguments;
-    if (isFirst == 0) {
+    if (isFirst) {
       int madiNotes;
       if (song.rhythmUpper == 3 && song.rhythmUnder == 4) {
         madiNotes = 60;
@@ -102,7 +101,7 @@ class _MyAppState extends State<MyApp> {
           }
         }
       });
-      isFirst++;
+      isFirst=false;
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -121,10 +120,10 @@ class _MyAppState extends State<MyApp> {
                 itemScrollController: scrollController,
                 itemBuilder: (context, index) {
                   index == 0 ? isStart = 0 : isStart = 1;
-                  return madi(sheet.sublist(index * 3), song.rhythmUnder,
-                      song.rhythmUpper, song.tempo, check.sublist(index * 3));
+                  return madi(sheet.sublist(index * (song.rhythmUpper==6?3:4)), song.rhythmUnder,
+                      song.rhythmUpper, song.tempo, check.sublist(index * (song.rhythmUpper==6?3:4)),index);
                 },
-                itemCount: (sheet.length / 3).ceil(),
+                itemCount: (sheet.length / (song.rhythmUpper==6?3:4)).ceil(),
                 separatorBuilder: (context, index) {
                   return Text("  ");
                 },
@@ -145,68 +144,86 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget madi(List<List<Note>> body, int rhythmUnder, int rhythmUpper,
-      int tempo, List<List<int>> scoreCheck) {
+      int tempo, List<List<int>> scoreCheck,int row) {
+    bool isDefault = rhythmUpper==6?false:true;
+    var orientation = MediaQuery.of(context).orientation;
+    double containerWidth = MediaQuery.of(context).size.width*(isDefault?row==0?3/9:4/13:row==0?3/7:4/10);
+    double containerHeight = MediaQuery.of(context).size.height/(orientation==Orientation.portrait?12:3.5);
     List<Widget> list = List<Widget>();
     list.add(Container(
-      width: double.infinity,
+      width: containerWidth,
+      height: containerHeight,
       child: SvgPicture.asset(
-        "assets/base.svg",
+        "assets/base2.svg",
         fit: BoxFit.fill,
       ),
     ));
     list.add(Positioned(
       child: SvgPicture.asset(
         "assets/start.svg",
-        height: 70,
+        height: containerHeight*0.7,
       ),
-      height: 100,
+      height: containerHeight,
     ));
-
     if (isStart == 0) {
       list.add(Positioned(
           child: Text(
             rhythmUpper.toString(),
-            style: TextStyle(fontSize: 35),
+            style: TextStyle(fontSize: containerHeight/2.9),
           ),
-          left: 35,
-          top: 20));
+          left: containerWidth*1/7,
+          top: containerHeight/5.7));
       list.add(Positioned(
           child: Text(
             rhythmUnder.toString(),
-            style: TextStyle(fontSize: 35),
+            style: TextStyle(fontSize: containerHeight/2.9),
           ),
-          left: 35,
-          top: 46));
+          left: containerWidth*1/7,
+          top: containerHeight/2.35));
     }
 
     List<Widget> list2 = List<Widget>();
     list2.add(Container(
-      width: double.infinity,
+      width: containerWidth,
+      height: containerHeight,
       child: SvgPicture.asset(
-        "assets/base.svg",
+        "assets/base2.svg",
         fit: BoxFit.fill,
       ),
     ));
 
     List<Widget> list3 = List<Widget>();
     list3.add(Container(
-      width: double.infinity,
+      width: containerWidth,
+      height: containerHeight,
       child: SvgPicture.asset(
-        "assets/base.svg",
+        "assets/base2.svg",
         fit: BoxFit.fill,
       ),
     ));
 
-    var s = 0.0;
-    for (var i = 0; i < body[0].length; i++) {
-      list.add(Positioned(
-        bottom: body[0][i].pitch < 46
-            ? body[0][i].pitch.toDouble()
-            : body[0][i].pitch.toDouble() - 40,
-        left: i != 0
-            ? s += body[0][i].leng.toDouble() + 20
-            : s = isStart == 0 ? 80 : 60,
-        child: SvgPicture.asset(
+    List<Widget> list4 = List<Widget>();
+    list4.add(Container(
+      width: containerWidth,
+      height: containerHeight,
+      child: SvgPicture.asset(
+        "assets/base2.svg",
+        fit: BoxFit.fill,
+      ),
+    ));
+
+
+    if(body.length>0){
+      var s = 0.0;
+      for (var i = 0; i < body[0].length; i++) {
+        list.add(Positioned(
+          bottom: body[0][i].pitch < 46
+              ? body[0][i].pitch.toDouble()
+              : body[0][i].pitch.toDouble() - 40,
+          left: i != 0
+              ? s += body[0][i].leng.toDouble() + 20
+              : s = isStart == 0 ? 80 : 60,
+          child: SvgPicture.asset(
             body[0][i].pitch < 47
                 ? body[0][i].pitch != 6
                     ? "assets/note${body[0][i].leng}.svg"
@@ -220,10 +237,14 @@ class _MyAppState extends State<MyApp> {
                     ? Colors.orange
                     : scoreCheck[0][i] == 2
                         ? Colors.greenAccent
-                        : Colors.red),
-      ));
+                        : Colors.red,
+            height: body[0][i].leng == 80
+                ? containerHeight / 10
+                : containerHeight / 2,
+          ),
+        ));
+      }
     }
-
     if (body.length > 1) {
       var s2 = 0.0;
       for (var i = 0; i < body[1].length; i++) {
@@ -237,7 +258,7 @@ class _MyAppState extends State<MyApp> {
                   ? body[1][i].pitch != 6
                       ? "assets/note${body[1][i].leng}.svg"
                       : "assets/note${body[1][i].leng}_c.svg"
-                  : body[0][i].pitch != 6
+                  : body[1][i].pitch != 6
                       ? "assets/note${body[1][i].leng}_2.svg"
                       : "assets/note${body[1][i].leng}_2c.svg",
               color: scoreCheck[1][i] == 0
@@ -246,7 +267,7 @@ class _MyAppState extends State<MyApp> {
                       ? Colors.orange
                       : scoreCheck[1][i] == 2
                           ? Colors.greenAccent
-                          : Colors.red),
+                          : Colors.red,height: body[1][i].leng==80?containerHeight/10:containerHeight/2),
         ));
       }
     }
@@ -264,7 +285,7 @@ class _MyAppState extends State<MyApp> {
                   ? body[2][i].pitch != 6
                       ? "assets/note${body[2][i].leng}.svg"
                       : "assets/note${body[2][i].leng}_c.svg"
-                  : body[0][i].pitch != 6
+                  : body[2][i].pitch != 6
                       ? "assets/note${body[2][i].leng}_2.svg"
                       : "assets/note${body[2][i].leng}_2c.svg",
               color: scoreCheck[2][i] == 0
@@ -273,31 +294,124 @@ class _MyAppState extends State<MyApp> {
                       ? Colors.orange
                       : scoreCheck[2][i] == 2
                           ? Colors.greenAccent
-                          : Colors.red),
+                          : Colors.red,height: body[2][i].leng==80?containerHeight/10:containerHeight/2),
         ));
       }
     }
 
-    return Container(
+    if (body.length > 3) {
+      var s4 = 30.0;
+      for (var i = 0; i < body[3].length; i++) {
+        list4.add(Positioned(
+          bottom: body[3][i].pitch < 46
+              ? body[3][i].pitch.toDouble()
+              : body[3][i].pitch.toDouble() - 40,
+          left: i != 0 ? s4 += body[3][i].leng.toDouble() + 20 : s4 = 20,
+          child: SvgPicture.asset(
+              body[3][i].pitch < 47
+                  ? body[3][i].pitch != 6
+                  ? "assets/note${body[3][i].leng}.svg"
+                  : "assets/note${body[3][i].leng}_c.svg"
+                  : body[3][i].pitch != 6
+                  ? "assets/note${body[3][i].leng}_2.svg"
+                  : "assets/note${body[3][i].leng}_2c.svg",
+              color: scoreCheck[3][i] == 0
+                  ? Colors.black
+                  : scoreCheck[3][i] == 1
+                  ? Colors.orange
+                  : scoreCheck[3][i] == 2
+                  ? Colors.greenAccent
+                  : Colors.red,height: body[3][i].leng==80?containerHeight/10:containerHeight/2),
+        ));
+      }
+    }
+
+  if(isDefault){
+    return IntrinsicHeight(
       child: Row(
         children: [
           Expanded(
             child: Stack(
               children: list,
             ),
+            flex: row==0?3:4,),
+          Container(
+            width: containerWidth*0.005,
+            height: containerHeight/1.97,
+            color: Colors.black,
           ),
           Expanded(
             child: Stack(
               children: list2,
             ),
+            flex: row==0?2:3,),
+          Container(
+            width: containerWidth*0.005,
+            height: containerHeight/1.97,
+            color: Colors.black,
           ),
           Expanded(
             child: Stack(children: list3),
+            flex: row==0?2:3,  ),
+          Container(
+            width: containerWidth*0.005,
+            height: containerHeight/1.97,
+            color: Colors.black,
           ),
-          Text(" ")
+          Expanded(
+            child: Stack(children: list4),
+            flex: row==0?2:3,),
+          Container(
+            width: containerWidth*0.005,
+            height: containerHeight/1.97,
+            color: Colors.black,
+          ),
+
+          Text(" "),
+
         ],
       ),
     );
+  }else{
+    return IntrinsicHeight(
+      child: Row(
+        children: [
+          Expanded(
+            child: Stack(
+              children: list,
+            ),
+            flex: row==0?3:4,),
+          Container(
+            width: containerWidth*0.005,
+            height: containerHeight/1.97,
+            color: Colors.black,
+          ),
+          Expanded(
+            child: Stack(
+              children: list2,
+            ),
+            flex: row==0?2:3,),
+          Container(
+            width: containerWidth*0.005,
+            height: containerHeight/1.97,
+            color: Colors.black,
+          ),
+          Expanded(
+            child: Stack(children: list3),
+            flex: row==0?2:3,  ),
+          Container(
+            width: containerWidth*0.005,
+            height: containerHeight/1.97,
+            color: Colors.black,
+          ),
+
+          Text(" "),
+
+        ],
+      ),
+    );
+
+  }
   }
 
   void startRecording() async {
@@ -322,9 +436,9 @@ class _MyAppState extends State<MyApp> {
               }
             }
           });
-          if (!isDisposed) if ((j + 1) % 3 == 1 && j != 0)
+          if (!isDisposed) if ((j + 1) % 4 == 1 && j != 0)
             scrollController.scrollTo(
-                index: (j + 1) ~/ 3,
+                index: (j + 1) ~/ 4,
                 duration: Duration(milliseconds: 500));
           await Future.delayed(Duration(milliseconds: 500), () {
             if (!isDisposed) {
