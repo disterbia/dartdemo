@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
   List<Note> list = [];
   int isStart = 0;
   List<int> score = [];
-  List<List<int>> check= [];
+  List<List<int>> check = [];
   int isFirst = 0;
   Song song;
   bool isDisposed = false;
@@ -61,7 +61,7 @@ class _MyAppState extends State<MyApp> {
     // ]);
     super.dispose();
     isDisposed = true;
-    if(isRecording==true)detector.stopRecording();
+    if (isRecording == true) detector.stopRecording();
   }
 
   @override
@@ -96,6 +96,10 @@ class _MyAppState extends State<MyApp> {
           list.add(note);
           score.add(0);
           madiCheck = note.leng;
+          if (song.notes.length == list.length) {
+            sheet.add(list.sublist(count));
+            check.add(score.sublist(count));
+          }
         }
       });
       isFirst++;
@@ -103,42 +107,12 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        floatingActionButton: FloatingActionButton(onPressed: () async{
-          print(isRecording);
-          isRecording ? stopRecording() : startRecording();
-          if (!isDisposed) {
-            for(var j = 0;j <check.length;j++){
-              for (var i = 0; i < check[j].length; i++){
-                await Future.delayed(Duration(milliseconds: 500),(){
-                  if(!isDisposed){
-                    setState(() {
-                      check[j][i] = 1;
-                      print(check[j][i]);
-                    });
-                  }
-                });
-                if(!isDisposed)
-                  if((j+1)%3==1&&j!=0)scrollController.scrollTo(index: (j+1)~/3, duration: Duration(milliseconds: 500));
-                await Future.delayed(Duration(milliseconds: 500),(){
-                  if(!isDisposed){
-                    setState(() {
-                      print((pitch??0).ceil());
-                      (pitch??0).ceil().toInt()>300?check[j][i] = 2:check[j][i] =3;
-                      pitch=0;
-                      print(check[j][i]);
-                    });
-                  }
-                });
-
-              }
-            }
-          }
-        }),
         body: Column(
           children: [
             Expanded(
               child: Container(
-                child: Text(song.title, style: TextStyle(fontSize: 20)),margin: EdgeInsets.only(top: 40,bottom: 20),
+                child: Text(song.title, style: TextStyle(fontSize: 20)),
+                margin: EdgeInsets.only(top: 40, bottom: 20),
               ),
               flex: 0,
             ),
@@ -148,22 +122,30 @@ class _MyAppState extends State<MyApp> {
                 itemBuilder: (context, index) {
                   index == 0 ? isStart = 0 : isStart = 1;
                   return madi(sheet.sublist(index * 3), song.rhythmUnder,
-                      song.rhythmUpper, song.tempo,check.sublist(index*3));
+                      song.rhythmUpper, song.tempo, check.sublist(index * 3));
                 },
                 itemCount: (sheet.length / 3).ceil(),
                 separatorBuilder: (context, index) {
                   return Text("  ");
                 },
               ),
-            )
+            ),
+            RaisedButton(
+                child: !isRecording?Text("Go!"):Text("Stop!"),
+                onPressed: () async {
+                  scrollController.scrollTo(
+                      index: 0, duration: Duration(milliseconds: 300));
+                  isRecording ? stopRecording() : startRecording();
+
+                })
           ],
         ),
       ),
     );
   }
 
-  Widget madi(
-      List<List<Note>> body, int rhythmUnder, int rhythmUpper, int tempo,List<List<int>> scoreCheck) {
+  Widget madi(List<List<Note>> body, int rhythmUnder, int rhythmUpper,
+      int tempo, List<List<int>> scoreCheck) {
     List<Widget> list = List<Widget>();
     list.add(Container(
       width: double.infinity,
@@ -226,9 +208,19 @@ class _MyAppState extends State<MyApp> {
             : s = isStart == 0 ? 80 : 60,
         child: SvgPicture.asset(
             body[0][i].pitch < 47
-                ? "assets/note${body[0][i].leng}.svg"
-                : "assets/note${body[0][i].leng}_2.svg",
-            color: scoreCheck[0][i] == 0 ? Colors.black : scoreCheck[0][i] == 1 ?Colors.orange:scoreCheck[0][i] == 2 ?Colors.greenAccent:Colors.red),
+                ? body[0][i].pitch != 6
+                    ? "assets/note${body[0][i].leng}.svg"
+                    : "assets/note${body[0][i].leng}_c.svg"
+                : body[0][i].pitch != 6
+                    ? "assets/note${body[0][i].leng}_2.svg"
+                    : "assets/note${body[0][i].leng}_2c.svg",
+            color: scoreCheck[0][i] == 0
+                ? Colors.black
+                : scoreCheck[0][i] == 1
+                    ? Colors.orange
+                    : scoreCheck[0][i] == 2
+                        ? Colors.greenAccent
+                        : Colors.red),
       ));
     }
 
@@ -242,9 +234,19 @@ class _MyAppState extends State<MyApp> {
           left: i != 0 ? s2 += body[1][i].leng.toDouble() + 20 : s2 = 20,
           child: SvgPicture.asset(
               body[1][i].pitch < 47
-                  ? "assets/note${body[1][i].leng}.svg"
-                  : "assets/note${body[1][i].leng}_2.svg",
-              color: scoreCheck[1][i] == 0 ? Colors.black : scoreCheck[1][i] == 1 ?Colors.orange:scoreCheck[1][i] == 2 ?Colors.greenAccent:Colors.red),
+                  ? body[1][i].pitch != 6
+                      ? "assets/note${body[1][i].leng}.svg"
+                      : "assets/note${body[1][i].leng}_c.svg"
+                  : body[0][i].pitch != 6
+                      ? "assets/note${body[1][i].leng}_2.svg"
+                      : "assets/note${body[1][i].leng}_2c.svg",
+              color: scoreCheck[1][i] == 0
+                  ? Colors.black
+                  : scoreCheck[1][i] == 1
+                      ? Colors.orange
+                      : scoreCheck[1][i] == 2
+                          ? Colors.greenAccent
+                          : Colors.red),
         ));
       }
     }
@@ -258,10 +260,20 @@ class _MyAppState extends State<MyApp> {
               : body[2][i].pitch.toDouble() - 40,
           left: i != 0 ? s3 += body[2][i].leng.toDouble() + 20 : s3 = 20,
           child: SvgPicture.asset(
-              body[2][i].pitch < 46
-                  ? "assets/note${body[2][i].leng}.svg"
-                  : "assets/note${body[2][i].leng}_2.svg",
-              color: scoreCheck[2][i] == 0 ? Colors.black : scoreCheck[2][i] == 1 ?Colors.orange:scoreCheck[2][i] == 2 ?Colors.greenAccent:Colors.red),
+              body[2][i].pitch < 47
+                  ? body[2][i].pitch != 6
+                      ? "assets/note${body[2][i].leng}.svg"
+                      : "assets/note${body[2][i].leng}_c.svg"
+                  : body[0][i].pitch != 6
+                      ? "assets/note${body[2][i].leng}_2.svg"
+                      : "assets/note${body[2][i].leng}_2c.svg",
+              color: scoreCheck[2][i] == 0
+                  ? Colors.black
+                  : scoreCheck[2][i] == 1
+                      ? Colors.orange
+                      : scoreCheck[2][i] == 2
+                          ? Colors.greenAccent
+                          : Colors.red),
         ));
       }
     }
@@ -295,6 +307,44 @@ class _MyAppState extends State<MyApp> {
         isRecording = true;
       });
     }
+    if (!isDisposed) {
+      for (var j = 0; j < check.length; j++) {
+        if(!isRecording) break;
+        for (var i = 0; i < check[j].length; i++) {
+          if(!isRecording) break;
+          await Future.delayed(Duration(milliseconds: 500), () {
+            if(isRecording){
+              if (!isDisposed) {
+                setState(() {
+                  check[j][i] = 1;
+                  print(check[j][i]);
+                });
+              }
+            }
+          });
+          if (!isDisposed) if ((j + 1) % 3 == 1 && j != 0)
+            scrollController.scrollTo(
+                index: (j + 1) ~/ 3,
+                duration: Duration(milliseconds: 500));
+          await Future.delayed(Duration(milliseconds: 500), () {
+            if (!isDisposed) {
+              if(isRecording){
+                setState(() {
+                  print((pitch ?? 0).ceil());
+                  (pitch ?? 0).ceil().toInt() > 300
+                      ? check[j][i] = 2
+                      : check[j][i] = 3;
+                  pitch = 0;
+                  print(check[j][i]);
+                });
+              }
+            }
+          });
+
+        }
+      }
+    }
+
   }
 
   void stopRecording() async {
@@ -302,6 +352,11 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       isRecording = false;
       pitch = detector.pitch;
+      for (var j = 0; j < check.length; j++) {
+        for (var i = 0; i < check[j].length; i++) {
+          check[j][i]=0;
+        }
+      }
     });
   }
 }
