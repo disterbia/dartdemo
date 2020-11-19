@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi_example/model/song.dart';
+import 'package:flutter_midi_example/noteParser.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pitchdetector/pitchdetector.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -72,11 +73,11 @@ class _MyAppState extends State<MyApp> {
     if (isFirst) {
       int madiNotes;
       if (song.rhythmUpper == 3 && song.rhythmUnder == 4) {
-        madiNotes = 60;
+        madiNotes = 3000;
       } else if (song.rhythmUpper == 4 && song.rhythmUnder == 4) {
-        madiNotes = 80;
+        madiNotes = 4000;
       } else if (song.rhythmUpper == 6 && song.rhythmUnder == 8) {
-        madiNotes = 60;
+        madiNotes = 3000;
       }
 
       song.notes.forEach((note) {
@@ -214,21 +215,16 @@ class _MyAppState extends State<MyApp> {
 
 
     if(body.length>0){
-      var s = 0.0;
       for (var i = 0; i < body[0].length; i++) {
         list.add(Positioned(
-          bottom: body[0][i].pitch < 46
-              ? body[0][i].pitch.toDouble()
-              : body[0][i].pitch.toDouble() - 40,
-          left: i != 0
-              ? s += body[0][i].leng.toDouble() + 20
-              : s = isStart == 0 ? 80 : 60,
+          bottom: containerHeight * pitchParser(body[0][i].pitch),
+          right: containerWidth * beatParser(body[0][i].leng),
           child: SvgPicture.asset(
-            body[0][i].pitch < 47
-                ? body[0][i].pitch != 6
+            body[0][i].pitch < 71
+                ? body[0][i].pitch != 60
                     ? "assets/note${body[0][i].leng}.svg"
                     : "assets/note${body[0][i].leng}_c.svg"
-                : body[0][i].pitch != 6
+                : body[0][i].pitch != 60
                     ? "assets/note${body[0][i].leng}_2.svg"
                     : "assets/note${body[0][i].leng}_2c.svg",
             color: scoreCheck[0][i] == 0
@@ -238,90 +234,93 @@ class _MyAppState extends State<MyApp> {
                     : scoreCheck[0][i] == 2
                         ? Colors.greenAccent
                         : Colors.red,
-            height: body[0][i].leng == 80
+            height: body[0][i].leng == 4000
                 ? containerHeight / 10
                 : containerHeight / 2,
           ),
         ));
       }
     }
-    if (body.length > 1) {
-      var s2 = 0.0;
+    if(body.length>1){
       for (var i = 0; i < body[1].length; i++) {
         list2.add(Positioned(
-          bottom: body[1][i].pitch < 47
-              ? body[1][i].pitch.toDouble()
-              : body[1][i].pitch.toDouble() - 40,
-          left: i != 0 ? s2 += body[1][i].leng.toDouble() + 20 : s2 = 20,
+          bottom: containerHeight * pitchParser(body[1][i].pitch),
+          right:  containerWidth * beatParser(body[1][i].leng),
           child: SvgPicture.asset(
-              body[1][i].pitch < 47
-                  ? body[1][i].pitch != 6
-                      ? "assets/note${body[1][i].leng}.svg"
-                      : "assets/note${body[1][i].leng}_c.svg"
-                  : body[1][i].pitch != 6
-                      ? "assets/note${body[1][i].leng}_2.svg"
-                      : "assets/note${body[1][i].leng}_2c.svg",
-              color: scoreCheck[1][i] == 0
-                  ? Colors.black
-                  : scoreCheck[1][i] == 1
-                      ? Colors.orange
-                      : scoreCheck[1][i] == 2
-                          ? Colors.greenAccent
-                          : Colors.red,height: body[1][i].leng==80?containerHeight/10:containerHeight/2),
+            body[1][i].pitch < 71
+                ? body[1][i].pitch != 60
+                ? "assets/note${body[1][i].leng}.svg"
+                : "assets/note${body[1][i].leng}_c.svg"
+                : body[1][i].pitch != 60
+                ? "assets/note${body[1][i].leng}_2.svg"
+                : "assets/note${body[1][i].leng}_2c.svg",
+            color: scoreCheck[1][i] == 0
+                ? Colors.black
+                : scoreCheck[1][i] == 1
+                ? Colors.orange
+                : scoreCheck[1][i] == 2
+                ? Colors.greenAccent
+                : Colors.red,
+            height: body[1][i].leng == 4000
+                ? containerHeight / 10
+                : containerHeight / 2,
+          ),
         ));
       }
     }
 
-    if (body.length > 2) {
-      var s3 = 30.0;
+    if(body.length>2){
       for (var i = 0; i < body[2].length; i++) {
         list3.add(Positioned(
-          bottom: body[2][i].pitch < 46
-              ? body[2][i].pitch.toDouble()
-              : body[2][i].pitch.toDouble() - 40,
-          left: i != 0 ? s3 += body[2][i].leng.toDouble() + 20 : s3 = 20,
+          bottom: containerHeight * pitchParser(body[2][i].pitch),
+          right:  containerWidth * beatParser(body[2][i].leng),
           child: SvgPicture.asset(
-              body[2][i].pitch < 47
-                  ? body[2][i].pitch != 6
-                      ? "assets/note${body[2][i].leng}.svg"
-                      : "assets/note${body[2][i].leng}_c.svg"
-                  : body[2][i].pitch != 6
-                      ? "assets/note${body[2][i].leng}_2.svg"
-                      : "assets/note${body[2][i].leng}_2c.svg",
-              color: scoreCheck[2][i] == 0
-                  ? Colors.black
-                  : scoreCheck[2][i] == 1
-                      ? Colors.orange
-                      : scoreCheck[2][i] == 2
-                          ? Colors.greenAccent
-                          : Colors.red,height: body[2][i].leng==80?containerHeight/10:containerHeight/2),
+            body[2][i].pitch < 71
+                ? body[2][i].pitch != 60
+                ? "assets/note${body[2][i].leng}.svg"
+                : "assets/note${body[2][i].leng}_c.svg"
+                : body[2][i].pitch != 60
+                ? "assets/note${body[2][i].leng}_2.svg"
+                : "assets/note${body[2][i].leng}_2c.svg",
+            color: scoreCheck[2][i] == 0
+                ? Colors.black
+                : scoreCheck[2][i] == 1
+                ? Colors.orange
+                : scoreCheck[2][i] == 2
+                ? Colors.greenAccent
+                : Colors.red,
+            height: body[2][i].leng == 4000
+                ? containerHeight / 10
+                : containerHeight / 2,
+          ),
         ));
       }
     }
 
-    if (body.length > 3) {
-      var s4 = 30.0;
+    if(body.length>3){
       for (var i = 0; i < body[3].length; i++) {
         list4.add(Positioned(
-          bottom: body[3][i].pitch < 46
-              ? body[3][i].pitch.toDouble()
-              : body[3][i].pitch.toDouble() - 40,
-          left: i != 0 ? s4 += body[3][i].leng.toDouble() + 20 : s4 = 20,
+          bottom: containerHeight * pitchParser(body[3][i].pitch),
+          right:  containerWidth * beatParser(body[3][i].leng),
           child: SvgPicture.asset(
-              body[3][i].pitch < 47
-                  ? body[3][i].pitch != 6
-                  ? "assets/note${body[3][i].leng}.svg"
-                  : "assets/note${body[3][i].leng}_c.svg"
-                  : body[3][i].pitch != 6
-                  ? "assets/note${body[3][i].leng}_2.svg"
-                  : "assets/note${body[3][i].leng}_2c.svg",
-              color: scoreCheck[3][i] == 0
-                  ? Colors.black
-                  : scoreCheck[3][i] == 1
-                  ? Colors.orange
-                  : scoreCheck[3][i] == 2
-                  ? Colors.greenAccent
-                  : Colors.red,height: body[3][i].leng==80?containerHeight/10:containerHeight/2),
+            body[3][i].pitch < 71
+                ? body[3][i].pitch != 60
+                ? "assets/note${body[3][i].leng}.svg"
+                : "assets/note${body[3][i].leng}_c.svg"
+                : body[3][i].pitch != 60
+                ? "assets/note${body[3][i].leng}_2.svg"
+                : "assets/note${body[3][i].leng}_2c.svg",
+            color: scoreCheck[3][i] == 0
+                ? Colors.black
+                : scoreCheck[3][i] == 1
+                ? Colors.orange
+                : scoreCheck[3][i] == 2
+                ? Colors.greenAccent
+                : Colors.red,
+            height: body[3][i].leng == 4000
+                ? containerHeight / 10
+                : containerHeight / 2,
+          ),
         ));
       }
     }
@@ -431,7 +430,6 @@ class _MyAppState extends State<MyApp> {
               if (!isDisposed) {
                 setState(() {
                   check[j][i] = 1;
-                  print(check[j][i]);
                 });
               }
             }
@@ -449,7 +447,6 @@ class _MyAppState extends State<MyApp> {
                       ? check[j][i] = 2
                       : check[j][i] = 3;
                   pitch = 0;
-                  print(check[j][i]);
                 });
               }
             }

@@ -19,75 +19,75 @@ void main() {
 class SamplePage extends StatelessWidget {
   var song = {
     0: [
+      Note(pitch: 67, leng: 1000),
       Note(pitch: 64, leng: 1000),
+      Note(pitch: 64, leng: 2000),
+
+      Note(pitch: 65, leng: 1000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 62, leng: 2000),
 
-      Note(pitch: 63, leng: 1000),
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 61, leng: 1000),
+      Note(pitch: 60, leng: 1000),
+      Note(pitch: 62, leng: 1000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 65, leng: 1000),
+
+      Note(pitch: 67, leng: 1000),
+      Note(pitch: 67, leng: 1000),
+      Note(pitch: 67, leng: 2000),
+
+      Note(pitch: 67, leng: 1000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 64, leng: 1000),
+
+      Note(pitch: 65, leng: 1000),
+      Note(pitch: 62, leng: 1000),
+      Note(pitch: 62, leng: 2000),
 
       Note(pitch: 60, leng: 1000),
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 63, leng: 1000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 67, leng: 1000),
+      Note(pitch: 67, leng: 1000),
 
       Note(pitch: 64, leng: 1000),
       Note(pitch: 64, leng: 1000),
       Note(pitch: 64, leng: 2000),
 
-      Note(pitch: 64, leng: 1000),
+      Note(pitch: 62, leng: 1000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 62, leng: 1000),
 
-      Note(pitch: 63, leng: 1000),
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 61, leng: 2000),
-
-      Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 64, leng: 1000),
+      Note(pitch: 65, leng: 2000),
+
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 64, leng: 1000),
       Note(pitch: 64, leng: 1000),
 
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 2000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 65, leng: 1000),
+      Note(pitch: 67, leng: 2000),
 
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 61, leng: 1000),
-
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 63, leng: 2000),
-
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 63, leng: 1000),
+      Note(pitch: 67, leng: 1000),
+      Note(pitch: 64, leng: 1000),
       Note(pitch: 64, leng: 2000),
 
-      Note(pitch: 64, leng: 1000),
+      Note(pitch: 65, leng: 1000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 62, leng: 2000),
-
-      Note(pitch: 63, leng: 1000),
-      Note(pitch: 61, leng: 1000),
-      Note(pitch: 61, leng: 2000),
 
       Note(pitch: 60, leng: 1000),
-      Note(pitch: 62, leng: 1000),
       Note(pitch: 64, leng: 1000),
-      Note(pitch: 64, leng: 1000),
+      Note(pitch: 67, leng: 1000),
+      Note(pitch: 67, leng: 1000),
 
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 2000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 64, leng: 2000),
     ],
     1: [
       Note(pitch: 21, leng: 40),
