@@ -1,34 +1,28 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_midi (0.0.1):
+  - "permission_handler (5.0.1+1)":
     - Flutter
-  - path_provider (0.0.1):
-    - Flutter
-  - path_provider_macos (0.0.1):
+  - pitchdetector (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - flutter_midi (from `.symlinks/plugins/flutter_midi/ios`)
-  - path_provider (from `.symlinks/plugins/path_provider/ios`)
-  - path_provider_macos (from `.symlinks/plugins/path_provider_macos/ios`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - pitchdetector (from `.symlinks/plugins/pitchdetector/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  flutter_midi:
-    :path: ".symlinks/plugins/flutter_midi/ios"
-  path_provider:
-    :path: ".symlinks/plugins/path_provider/ios"
-  path_provider_macos:
-    :path: ".symlinks/plugins/path_provider_macos/ios"
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
+  pitchdetector:
+    :path: ".symlinks/plugins/pitchdetector/ios"
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_midi: 4fe7280cf156c668fe92445f384b1bc440473cdb
-  path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
-  path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
+  permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
+  pitchdetector: ca89af540a8dcc41299f4a54438f4e577f04010a
 
 PODFILE CHECKSUM: 083258d7f5e80b42ea9bfee905fe93049bc04c64
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.10.0

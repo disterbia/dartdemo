@@ -9,6 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pitchdetector/pitchdetector.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import 'noteParser.dart';
+
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -102,7 +104,7 @@ class _MyAppState extends State<MyApp> {
           }
         }
       });
-      isFirst=false;
+      isFirst = false;
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -121,22 +123,27 @@ class _MyAppState extends State<MyApp> {
                 itemScrollController: scrollController,
                 itemBuilder: (context, index) {
                   index == 0 ? isStart = 0 : isStart = 1;
-                  return madi(sheet.sublist(index * (song.rhythmUpper==6?3:4)), song.rhythmUnder,
-                      song.rhythmUpper, song.tempo, check.sublist(index * (song.rhythmUpper==6?3:4)),index);
+                  return madi(
+                      sheet.sublist(index * (song.rhythmUpper == 6 ? 3 : 4)),
+                      song.rhythmUnder,
+                      song.rhythmUpper,
+                      song.tempo,
+                      check.sublist(index * (song.rhythmUpper == 6 ? 3 : 4)),
+                      index);
                 },
-                itemCount: (sheet.length / (song.rhythmUpper==6?3:4)).ceil(),
+                itemCount:
+                    (sheet.length / (song.rhythmUpper == 6 ? 3 : 4)).ceil(),
                 separatorBuilder: (context, index) {
                   return Text("  ");
                 },
               ),
             ),
             RaisedButton(
-                child: !isRecording?Text("Go!"):Text("Stop!"),
+                child: !isRecording ? Text("Go!") : Text("Stop!"),
                 onPressed: () async {
                   scrollController.scrollTo(
                       index: 0, duration: Duration(milliseconds: 300));
                   isRecording ? stopRecording() : startRecording();
-
                 })
           ],
         ),
@@ -145,11 +152,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget madi(List<List<Note>> body, int rhythmUnder, int rhythmUpper,
-      int tempo, List<List<int>> scoreCheck,int row) {
-    bool isDefault = rhythmUpper==6?false:true;
+      int tempo, List<List<int>> scoreCheck, int row) {
+    bool isDefault = rhythmUpper == 6 ? false : true;
     var orientation = MediaQuery.of(context).orientation;
-    double containerWidth = MediaQuery.of(context).size.width*(isDefault?row==0?3/9:4/13:row==0?3/7:4/10);
-    double containerHeight = MediaQuery.of(context).size.height/(orientation==Orientation.portrait?12:3.5);
+    double containerWidth = MediaQuery.of(context).size.width *
+        (isDefault
+            ? row == 0
+                ? 3 / 9
+                : 4 / 13
+            : row == 0
+                ? 3 / 7
+                : 4 / 10);
+    double containerHeight = MediaQuery.of(context).size.height /
+        (orientation == Orientation.portrait ? 12 : 3.5);
     List<Widget> list = List<Widget>();
     list.add(Container(
       width: containerWidth,
@@ -162,7 +177,7 @@ class _MyAppState extends State<MyApp> {
     list.add(Positioned(
       child: SvgPicture.asset(
         "assets/start.svg",
-        height: containerHeight*0.7,
+        height: containerHeight * 0.7,
       ),
       height: containerHeight,
     ));
@@ -170,17 +185,17 @@ class _MyAppState extends State<MyApp> {
       list.add(Positioned(
           child: Text(
             rhythmUpper.toString(),
-            style: TextStyle(fontSize: containerHeight/2.9),
+            style: TextStyle(fontSize: containerHeight / 2.9),
           ),
-          left: containerWidth*1/7,
-          top: containerHeight/5.7));
+          left: containerWidth * 1 / 7,
+          top: containerHeight / 5.7));
       list.add(Positioned(
           child: Text(
             rhythmUnder.toString(),
-            style: TextStyle(fontSize: containerHeight/2.9),
+            style: TextStyle(fontSize: containerHeight / 2.9),
           ),
-          left: containerWidth*1/7,
-          top: containerHeight/2.35));
+          left: containerWidth * 1 / 7,
+          top: containerHeight / 2.35));
     }
 
     List<Widget> list2 = List<Widget>();
@@ -213,12 +228,19 @@ class _MyAppState extends State<MyApp> {
       ),
     ));
 
+    if (body.length > 0) {
+      var startPos = containerWidth * 0.6;
+      startPos = startPos;
+      var endPos = containerWidth * 0.44;
+      var nextPos = startPos;
+      var interval = (startPos - endPos) / 8;
 
-    if(body.length>0){
       for (var i = 0; i < body[0].length; i++) {
+        print(
+            "test ${startPos} ${endPos} ${(startPos - endPos) / 16} ${nextPos}");
         list.add(Positioned(
           bottom: containerHeight * pitchParser(body[0][i].pitch),
-          right: containerWidth * beatParser(body[0][i].leng),
+          right: nextPos,
           child: SvgPicture.asset(
             body[0][i].pitch < 71
                 ? body[0][i].pitch != 60
@@ -239,28 +261,33 @@ class _MyAppState extends State<MyApp> {
                 : containerHeight / 2,
           ),
         ));
+        nextPos =
+            nextPos - (1 - beatParser(body[0][i].leng) / 2) * interval * 4;
       }
     }
-    if(body.length>1){
+    if (body.length > 1) {
+      double pos = containerWidth;
+      double beforePos = 0;
       for (var i = 0; i < body[1].length; i++) {
+        beforePos = beforePos + beatParser(body[1][i].leng);
         list2.add(Positioned(
           bottom: containerHeight * pitchParser(body[1][i].pitch),
-          right:  containerWidth * beatParser(body[1][i].leng),
+          right: containerWidth * beforePos,
           child: SvgPicture.asset(
             body[1][i].pitch < 71
                 ? body[1][i].pitch != 60
-                ? "assets/note${body[1][i].leng}.svg"
-                : "assets/note${body[1][i].leng}_c.svg"
+                    ? "assets/note${body[1][i].leng}.svg"
+                    : "assets/note${body[1][i].leng}_c.svg"
                 : body[1][i].pitch != 60
-                ? "assets/note${body[1][i].leng}_2.svg"
-                : "assets/note${body[1][i].leng}_2c.svg",
+                    ? "assets/note${body[1][i].leng}_2.svg"
+                    : "assets/note${body[1][i].leng}_2c.svg",
             color: scoreCheck[1][i] == 0
                 ? Colors.black
                 : scoreCheck[1][i] == 1
-                ? Colors.orange
-                : scoreCheck[1][i] == 2
-                ? Colors.greenAccent
-                : Colors.red,
+                    ? Colors.orange
+                    : scoreCheck[1][i] == 2
+                        ? Colors.greenAccent
+                        : Colors.red,
             height: body[1][i].leng == 4000
                 ? containerHeight / 10
                 : containerHeight / 2,
@@ -269,26 +296,26 @@ class _MyAppState extends State<MyApp> {
       }
     }
 
-    if(body.length>2){
+    if (body.length > 2) {
       for (var i = 0; i < body[2].length; i++) {
         list3.add(Positioned(
           bottom: containerHeight * pitchParser(body[2][i].pitch),
-          right:  containerWidth * beatParser(body[2][i].leng),
+          right: containerWidth * beatParser(body[2][i].leng),
           child: SvgPicture.asset(
             body[2][i].pitch < 71
                 ? body[2][i].pitch != 60
-                ? "assets/note${body[2][i].leng}.svg"
-                : "assets/note${body[2][i].leng}_c.svg"
+                    ? "assets/note${body[2][i].leng}.svg"
+                    : "assets/note${body[2][i].leng}_c.svg"
                 : body[2][i].pitch != 60
-                ? "assets/note${body[2][i].leng}_2.svg"
-                : "assets/note${body[2][i].leng}_2c.svg",
+                    ? "assets/note${body[2][i].leng}_2.svg"
+                    : "assets/note${body[2][i].leng}_2c.svg",
             color: scoreCheck[2][i] == 0
                 ? Colors.black
                 : scoreCheck[2][i] == 1
-                ? Colors.orange
-                : scoreCheck[2][i] == 2
-                ? Colors.greenAccent
-                : Colors.red,
+                    ? Colors.orange
+                    : scoreCheck[2][i] == 2
+                        ? Colors.greenAccent
+                        : Colors.red,
             height: body[2][i].leng == 4000
                 ? containerHeight / 10
                 : containerHeight / 2,
@@ -297,26 +324,26 @@ class _MyAppState extends State<MyApp> {
       }
     }
 
-    if(body.length>3){
+    if (body.length > 3) {
       for (var i = 0; i < body[3].length; i++) {
         list4.add(Positioned(
           bottom: containerHeight * pitchParser(body[3][i].pitch),
-          right:  containerWidth * beatParser(body[3][i].leng),
+          right: containerWidth * beatParser(body[3][i].leng),
           child: SvgPicture.asset(
             body[3][i].pitch < 71
                 ? body[3][i].pitch != 60
-                ? "assets/note${body[3][i].leng}.svg"
-                : "assets/note${body[3][i].leng}_c.svg"
+                    ? "assets/note${body[3][i].leng}.svg"
+                    : "assets/note${body[3][i].leng}_c.svg"
                 : body[3][i].pitch != 60
-                ? "assets/note${body[3][i].leng}_2.svg"
-                : "assets/note${body[3][i].leng}_2c.svg",
+                    ? "assets/note${body[3][i].leng}_2.svg"
+                    : "assets/note${body[3][i].leng}_2c.svg",
             color: scoreCheck[3][i] == 0
                 ? Colors.black
                 : scoreCheck[3][i] == 1
-                ? Colors.orange
-                : scoreCheck[3][i] == 2
-                ? Colors.greenAccent
-                : Colors.red,
+                    ? Colors.orange
+                    : scoreCheck[3][i] == 2
+                        ? Colors.greenAccent
+                        : Colors.red,
             height: body[3][i].leng == 4000
                 ? containerHeight / 10
                 : containerHeight / 2,
@@ -325,92 +352,94 @@ class _MyAppState extends State<MyApp> {
       }
     }
 
-  if(isDefault){
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          Expanded(
-            child: Stack(
-              children: list,
+    if (isDefault) {
+      return IntrinsicHeight(
+        child: Row(
+          children: [
+            Expanded(
+              child: Stack(
+                children: list,
+              ),
+              flex: row == 0 ? 3 : 4,
             ),
-            flex: row==0?3:4,),
-          Container(
-            width: containerWidth*0.005,
-            height: containerHeight/1.97,
-            color: Colors.black,
-          ),
-          Expanded(
-            child: Stack(
-              children: list2,
+            Container(
+              width: containerWidth * 0.005,
+              height: containerHeight / 1.97,
+              color: Colors.black,
             ),
-            flex: row==0?2:3,),
-          Container(
-            width: containerWidth*0.005,
-            height: containerHeight/1.97,
-            color: Colors.black,
-          ),
-          Expanded(
-            child: Stack(children: list3),
-            flex: row==0?2:3,  ),
-          Container(
-            width: containerWidth*0.005,
-            height: containerHeight/1.97,
-            color: Colors.black,
-          ),
-          Expanded(
-            child: Stack(children: list4),
-            flex: row==0?2:3,),
-          Container(
-            width: containerWidth*0.005,
-            height: containerHeight/1.97,
-            color: Colors.black,
-          ),
-
-          Text(" "),
-
-        ],
-      ),
-    );
-  }else{
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          Expanded(
-            child: Stack(
-              children: list,
+            Expanded(
+              child: Stack(
+                children: list2,
+              ),
+              flex: row == 0 ? 2 : 3,
             ),
-            flex: row==0?3:4,),
-          Container(
-            width: containerWidth*0.005,
-            height: containerHeight/1.97,
-            color: Colors.black,
-          ),
-          Expanded(
-            child: Stack(
-              children: list2,
+            Container(
+              width: containerWidth * 0.005,
+              height: containerHeight / 1.97,
+              color: Colors.black,
             ),
-            flex: row==0?2:3,),
-          Container(
-            width: containerWidth*0.005,
-            height: containerHeight/1.97,
-            color: Colors.black,
-          ),
-          Expanded(
-            child: Stack(children: list3),
-            flex: row==0?2:3,  ),
-          Container(
-            width: containerWidth*0.005,
-            height: containerHeight/1.97,
-            color: Colors.black,
-          ),
-
-          Text(" "),
-
-        ],
-      ),
-    );
-
-  }
+            Expanded(
+              child: Stack(children: list3),
+              flex: row == 0 ? 2 : 3,
+            ),
+            Container(
+              width: containerWidth * 0.005,
+              height: containerHeight / 1.97,
+              color: Colors.black,
+            ),
+            Expanded(
+              child: Stack(children: list4),
+              flex: row == 0 ? 2 : 3,
+            ),
+            Container(
+              width: containerWidth * 0.005,
+              height: containerHeight / 1.97,
+              color: Colors.black,
+            ),
+            Text(" "),
+          ],
+        ),
+      );
+    } else {
+      return IntrinsicHeight(
+        child: Row(
+          children: [
+            Expanded(
+              child: Stack(
+                children: list,
+              ),
+              flex: row == 0 ? 3 : 4,
+            ),
+            Container(
+              width: containerWidth * 0.005,
+              height: containerHeight / 1.97,
+              color: Colors.black,
+            ),
+            Expanded(
+              child: Stack(
+                children: list2,
+              ),
+              flex: row == 0 ? 2 : 3,
+            ),
+            Container(
+              width: containerWidth * 0.005,
+              height: containerHeight / 1.97,
+              color: Colors.black,
+            ),
+            Expanded(
+              child: Stack(children: list3),
+              flex: row == 0 ? 2 : 3,
+            ),
+            Container(
+              width: containerWidth * 0.005,
+              height: containerHeight / 1.97,
+              color: Colors.black,
+            ),
+            Text(" "),
+          ],
+        ),
+      );
+    }
   }
 
   void startRecording() async {
@@ -422,11 +451,11 @@ class _MyAppState extends State<MyApp> {
     }
     if (!isDisposed) {
       for (var j = 0; j < check.length; j++) {
-        if(!isRecording) break;
+        if (!isRecording) break;
         for (var i = 0; i < check[j].length; i++) {
-          if(!isRecording) break;
+          if (!isRecording) break;
           await Future.delayed(Duration(milliseconds: 500), () {
-            if(isRecording){
+            if (isRecording) {
               if (!isDisposed) {
                 setState(() {
                   check[j][i] = 1;
@@ -436,11 +465,10 @@ class _MyAppState extends State<MyApp> {
           });
           if (!isDisposed) if ((j + 1) % 4 == 1 && j != 0)
             scrollController.scrollTo(
-                index: (j + 1) ~/ 4,
-                duration: Duration(milliseconds: 500));
+                index: (j + 1) ~/ 4, duration: Duration(milliseconds: 500));
           await Future.delayed(Duration(milliseconds: 500), () {
             if (!isDisposed) {
-              if(isRecording){
+              if (isRecording) {
                 setState(() {
                   print((pitch ?? 0).ceil());
                   (pitch ?? 0).ceil().toInt() > 300
@@ -451,11 +479,9 @@ class _MyAppState extends State<MyApp> {
               }
             }
           });
-
         }
       }
     }
-
   }
 
   void stopRecording() async {
@@ -465,7 +491,7 @@ class _MyAppState extends State<MyApp> {
       pitch = detector.pitch;
       for (var j = 0; j < check.length; j++) {
         for (var i = 0; i < check[j].length; i++) {
-          check[j][i]=0;
+          check[j][i] = 0;
         }
       }
     });
