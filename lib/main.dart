@@ -5,6 +5,7 @@ import 'package:flutter_midi_example/model/song.dart';
 import 'package:flutter_midi_example/temp.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:flutter_midi_example/noteParser.dart';
 
 // import 'web_midi.dart';
 
@@ -192,23 +193,30 @@ class SamplePage extends StatelessWidget {
                         tempo: 120))),
             createMadi(
                 Madi(
-                    isSongFirst: true,
-                    isFirst: true,
-                    endType: 2,
+                    isRhythmShown: true,
+                    isClefShown: true,
+                    endType: 0,
                     clef: 0,
-                    notes: song[4],
+                    notes: [
+                      Note(pitch: 60, leng: 1000),
+                      Note(pitch: 64, leng: 1000),
+                      Note(pitch: 67, leng: 500),
+                      Note(pitch: 69, leng: 500),
+                      Note(pitch: 67, leng: 500),
+                      Note(pitch: 67, leng: 500),
+                    ],
                     scale: 0,
                     rhythmUnder: 4,
                     rhythmUpper: 4),
-                260),
+                200),
           ],
         ));
   }
 }
 
 class Madi {
-  bool isFirst; //줄시작여부에 따라 음자리표 그려줄거임
-  bool isSongFirst; //  곡시작여부(박자표)
+  bool isClefShown; //줄시작여부에 따라 음자리표 그려줄거임
+  bool isRhythmShown; //  곡시작여부(박자표)
   int endType; // 0 일반, 1  도돌이표, 2, :곡끝
   int clef; // 1 : 높은음자리표 -1 : 낮은음자리표 0 : 없음
   int scale; // 0 : CMajor 0~7 : #갯수 -1~-7 : b갯수
@@ -216,8 +224,8 @@ class Madi {
   int rhythmUpper;
   List<Note> notes;
   Madi(
-      {@required this.isFirst,
-      @required this.isSongFirst,
+      {@required this.isClefShown,
+      @required this.isRhythmShown,
       @required this.endType,
       @required this.clef,
       @required this.scale,
@@ -289,7 +297,8 @@ List<Widget> drawEndLine(double widgetHeight, double widgetWidth, int type) {
 Widget createMadi(Madi madi, double madiWidth) {
   List<Widget> widgets = [];
   double widgetHeight = 80; // 디바이스의 크기가져와서 계산 or 고정
-  double startPosition = 0;
+  double startPosition = madiWidth * 0.05;
+  double endPosition = madiWidth * 0.95;
 
   //기본 오선보 삽입
   widgets.add(Container(
@@ -307,17 +316,42 @@ Widget createMadi(Madi madi, double madiWidth) {
   });
 
   // 음자리표 삽입
-  if (madi.isFirst) {
+  if (madi.isClefShown) {
     widgets.add(drawClef(true, widgetHeight));
-
     widgets.add(drawClef(true, widgetHeight));
+    startPosition = startPosition + widgetHeight / 4;
   }
   //박자표삽입
-  if (madi.isSongFirst) {
+  if (madi.isRhythmShown) {
     drawRhythem(madi.rhythmUpper, madi.rhythmUnder, widgetHeight).forEach((wg) {
       widgets.add(wg);
     });
+    startPosition = startPosition + widgetHeight / 4;
   }
+
+  // 음표삽입
+  var nowPosition = startPosition;
+  var interval = (endPosition - startPosition) / 4;
+  print("$interval $nowPosition");
+  madi.notes.forEach((note) {
+    widgets.add(Positioned(
+      bottom: widgetHeight * pitchParser(note.pitch),
+      left: nowPosition,
+      child: SvgPicture.asset(
+        madi.notes[0].pitch < 71
+            ? madi.notes[0].pitch != 60
+                ? "assets/note${note.leng}.svg"
+                : "assets/note${note.leng}_c.svg"
+            : madi.notes[0].pitch != 60
+                ? "assets/note${note.leng}_2.svg"
+                : "assets/note${note.leng}_2c.svg",
+        color: Colors.black,
+        height: note.leng == 4000 ? widgetHeight / 10 : widgetHeight / 2,
+      ),
+    ));
+    nowPosition = nowPosition + note.leng / 1000 * interval;
+  });
+
   return Stack(
     children: widgets,
   );
