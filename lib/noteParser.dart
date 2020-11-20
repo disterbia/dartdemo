@@ -75,25 +75,25 @@ double pitchParser(int pitch) {
 double beatParser(int beat) {
   switch (beat) {
     case 4000:
-      return 1 / 16; //온
+      return 1 / 32; //온
       break;
     case 3000:
-      return 2 / 16; //.2
+      return 2 / 32; //.2
       break;
     case 2000:
-      return 4 / 16; //2
+      return 4 / 32; //2
       break;
     case 1500:
-      return 6 / 16; //.4
+      return 6 / 32; //.4
       break;
     case 1000:
-      return 8 / 16; // 4
+      return 8 / 32; // 4
       break;
     case 500:
-      return 12 / 16; // 8
+      return 12 / 32; // 8
       break;
     case 250:
-      return 16 / 16; // 16
+      return 16 / 32; // 16
       break;
   }
 }

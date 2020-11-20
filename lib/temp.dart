@@ -229,15 +229,15 @@ class _MyAppState extends State<MyApp> {
     ));
 
     if (body.length > 0) {
-      var startPos = containerWidth * 0.6;
+      var startPos = containerWidth * 0.57;
       startPos = startPos;
       var endPos = containerWidth * 0.44;
       var nextPos = startPos;
-      var interval = (startPos - endPos) / 8;
+      var interval = (startPos - endPos) / 16;
 
       for (var i = 0; i < body[0].length; i++) {
-        print(
-            "test ${startPos} ${endPos} ${(startPos - endPos) / 16} ${nextPos}");
+        // print(
+        //     "test ${startPos} ${endPos} ${(startPos - endPos) / 16} ${nextPos}");
         list.add(Positioned(
           bottom: containerHeight * pitchParser(body[0][i].pitch),
           right: nextPos,
@@ -261,8 +261,9 @@ class _MyAppState extends State<MyApp> {
                 : containerHeight / 2,
           ),
         ));
-        nextPos =
-            nextPos - (1 - beatParser(body[0][i].leng) / 2) * interval * 4;
+        nextPos = nextPos - (1 - (beatParser(body[0][i].leng) * 32)) * interval;
+
+        print(beatParser(body[0][i].leng));
       }
     }
     if (body.length > 1) {
