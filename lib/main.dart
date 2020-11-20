@@ -195,20 +195,18 @@ class SamplePage extends StatelessWidget {
                 Madi(
                     isRhythmShown: true,
                     isClefShown: true,
-                    endType: 0,
+                    endType: 2,
                     clef: 0,
                     notes: [
                       Note(pitch: 60, leng: 1000),
-                      Note(pitch: 64, leng: 1000),
+                      Note(pitch: 64, leng: 2000),
                       Note(pitch: 67, leng: 500),
-                      Note(pitch: 69, leng: 500),
-                      Note(pitch: 67, leng: 500),
-                      Note(pitch: 67, leng: 500),
+                      Note(pitch: 71, leng: 500),
                     ],
                     scale: 0,
                     rhythmUnder: 4,
                     rhythmUpper: 4),
-                200),
+                300),
           ],
         ));
   }
@@ -338,11 +336,11 @@ Widget createMadi(Madi madi, double madiWidth) {
       bottom: widgetHeight * pitchParser(note.pitch),
       left: nowPosition,
       child: SvgPicture.asset(
-        madi.notes[0].pitch < 71
-            ? madi.notes[0].pitch != 60
+        note.pitch < 71
+            ? note.pitch != 60
                 ? "assets/note${note.leng}.svg"
                 : "assets/note${note.leng}_c.svg"
-            : madi.notes[0].pitch != 60
+            : note.pitch != 60
                 ? "assets/note${note.leng}_2.svg"
                 : "assets/note${note.leng}_2c.svg",
         color: Colors.black,
