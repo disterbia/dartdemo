@@ -199,14 +199,46 @@ class SamplePage extends StatelessWidget {
                     clef: 0,
                     notes: [
                       Note(pitch: 60, leng: 1000),
-                      Note(pitch: 64, leng: 2000),
-                      Note(pitch: 67, leng: 500),
-                      Note(pitch: 71, leng: 500),
+                      Note(pitch: 60, leng: 1000),
+                      Note(pitch: 60, leng: 500),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
+                      Note(pitch: 60, leng: 250),
                     ],
                     scale: 0,
                     rhythmUnder: 4,
                     rhythmUpper: 4),
-                300),
+                350),
+            Row(
+              children: [
+                createMadi(
+                    Madi(
+                        isRhythmShown: true,
+                        isClefShown: true,
+                        endType: 0,
+                        clef: 0,
+                        notes: [
+                          Note(pitch: 60, leng: 1000),
+                          Note(pitch: 60, leng: 1000),
+                          Note(pitch: 60, leng: 1000),
+                          Note(pitch: 60, leng: 1000),
+                        ],
+                        scale: 0,
+                        rhythmUnder: 8,
+                        rhythmUpper: 3),
+                    90),
+              ],
+            )
           ],
         ));
   }
@@ -294,7 +326,15 @@ List<Widget> drawEndLine(double widgetHeight, double widgetWidth, int type) {
 
 Widget createMadi(Madi madi, double madiWidth) {
   List<Widget> widgets = [];
-  double widgetHeight = 80; // 디바이스의 크기가져와서 계산 or 고정
+  double widgetHeight = 70; // 디바이스의 크기가져와서 계산 or 고정
+
+  if (madi.isClefShown) {
+    madiWidth = madiWidth + widgetHeight / 4;
+  }
+  if (madi.isRhythmShown) {
+    madiWidth = madiWidth + widgetHeight / 4;
+  }
+
   double startPosition = madiWidth * 0.05;
   double endPosition = madiWidth * 0.95;
 
@@ -327,10 +367,16 @@ Widget createMadi(Madi madi, double madiWidth) {
     startPosition = startPosition + widgetHeight / 4;
   }
 
+  print("${madi.rhythmUnder} ${madi.rhythmUpper}");
+  if (madi.rhythmUnder == 8) {}
+
   // 음표삽입
   var nowPosition = startPosition;
-  var interval = (endPosition - startPosition) / 4;
-  print("$interval $nowPosition");
+  // var interval = (endPosition - startPosition) / 4;
+  //박자에 따라 간격 설정
+  var interval = madi.rhythmUnder == 4
+      ? (endPosition - startPosition) / madi.rhythmUpper
+      : (endPosition - startPosition) / madi.rhythmUpper * madi.rhythmUnder / 4;
   madi.notes.forEach((note) {
     widgets.add(Positioned(
       bottom: widgetHeight * pitchParser(note.pitch),
