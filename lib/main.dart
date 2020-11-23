@@ -159,93 +159,140 @@ class SamplePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text("악보선택")),
-        body: Column(
-          children: [
-            RaisedButton(
-                child: Text("나비야"),
-                onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: Song(
-                        id: 0,
-                        title: "나비야",
-                        notes: song[0],
-                        rhythmUnder: 4,
-                        rhythmUpper: 4,
-                        tempo: 120))),
-            RaisedButton(
-                child: Text("비행기"),
-                onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: Song(
-                        id: 1,
-                        title: "비행기",
-                        notes: song[1],
-                        rhythmUnder: 4,
-                        rhythmUpper: 4,
-                        tempo: 120))),
-            RaisedButton(
-                child: Text("쉽지않아"),
-                onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: Song(
-                        id: 2,
-                        title: "쉽지않아",
-                        notes: song[2],
-                        rhythmUnder: 8,
-                        rhythmUpper: 6,
-                        tempo: 120))),
-            createMadi(
-                Madi(
-                    isRhythmShown: true,
-                    isClefShown: true,
-                    endType: 2,
-                    clef: 0,
-                    notes: [
-                      Note(pitch: 60, leng: 1000),
-                      Note(pitch: 60, leng: 1000),
-                      Note(pitch: 60, leng: 500),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                      Note(pitch: 60, leng: 250),
-                    ],
-                    scale: 0,
-                    rhythmUnder: 4,
-                    rhythmUpper: 4),
-                350),
-            Row(
-              children: [
-                createMadi(
-                    Madi(
-                        isRhythmShown: true,
-                        isClefShown: true,
-                        endType: 0,
-                        clef: 0,
-                        notes: [
-                          Note(pitch: 60, leng: 1000),
-                          Note(pitch: 60, leng: 1000),
-                          Note(pitch: 60, leng: 1000),
-                          Note(pitch: 60, leng: 1000),
-                        ],
-                        scale: 0,
-                        rhythmUnder: 8,
-                        rhythmUpper: 3),
-                    90),
-              ],
-            )
-          ],
-        ));
+        body: createSong(12, null, context));
   }
 }
 
+var notes = [
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 67, leng: 2000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 65, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 62, leng: 2000),
+  Note(pitch: 60, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 65, leng: 1000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 67, leng: 2000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 65, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 62, leng: 2000),
+  Note(pitch: 60, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 2000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 65, leng: 2000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 65, leng: 1000),
+  Note(pitch: 67, leng: 2000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 2000),
+  Note(pitch: 65, leng: 1000),
+  Note(pitch: 62, leng: 1000),
+  Note(pitch: 62, leng: 2000),
+  Note(pitch: 60, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 67, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 1000),
+  Note(pitch: 64, leng: 2000),
+];
+
+Song song = Song(
+    id: 0,
+    notes: notes,
+    rhythmUnder: 4,
+    rhythmUpper: 4,
+    tempo: 120,
+    title: "나비야 - 하동균 ");
+//한줄에 허용할 음표 갯수 정하고 거기에 맞게 마디 만들고 create 마디 해주기
+ListView createSong(int maxNotesInLine, Song songTem, BuildContext context) {
+  //한마디에 총 허용되는 노트(1000 = 4분음표 1개)
+  var maxOfMadi = 4000 * song.rhythmUpper / song.rhythmUnder;
+  List<Madi> madiList = [];
+  madiList.add(Madi(
+      isRhythmShown: true,
+      endType: 0,
+      clef: 1,
+      scale: 0,
+      rhythmUnder: 4,
+      rhythmUpper: 4,
+      notes: []));
+
+  // 1. 노래를 마디 리스트화
+  int nowMadiLength = 0;
+  song.notes.forEach((note) {
+    if (nowMadiLength + note.leng <= maxOfMadi) {
+      madiList.last.notes.add(note);
+      nowMadiLength = nowMadiLength + note.leng;
+    } else {
+      madiList.add(Madi(
+          isRhythmShown: true,
+          endType: 0,
+          clef: 1,
+          scale: 0,
+          rhythmUnder: 4,
+          rhythmUpper: 4,
+          notes: []));
+      madiList.last.notes.add(note);
+      nowMadiLength = note.leng;
+    }
+  });
+  List<Row> rows = [];
+  var deviceWidth = MediaQuery.of(context).size.width;
+
+  maxNotesInLine;
+  int nowNoteCnt = 0;
+  List<Widget> tempMadiList = [];
+  madiList.forEach((madi) {
+    if (nowNoteCnt > 0) {
+      madi.clef = 0;
+      madi.isRhythmShown = false;
+    }
+    nowNoteCnt = nowNoteCnt + madi.getNotesLength();
+    if (nowNoteCnt <= maxNotesInLine) {
+      tempMadiList.add(createMadi(madi, deviceWidth / 3));
+    } else {
+      nowNoteCnt = 0;
+      rows.add(Row(
+        children: tempMadiList,
+      ));
+      tempMadiList = [];
+    }
+  });
+
+  // 2. 마디 리스트 아이템의 노트 갯수와 한줄에 허용되는 노트의 갯수와 맞게 Row List화
+  ListView listView = ListView(
+    children: rows,
+  );
+
+  // 3. 컨테이너 return
+  return listView;
+}
+
 class Madi {
-  bool isClefShown; //줄시작여부에 따라 음자리표 그려줄거임
   bool isRhythmShown; //  곡시작여부(박자표)
   int endType; // 0 일반, 1  도돌이표, 2, :곡끝
   int clef; // 1 : 높은음자리표 -1 : 낮은음자리표 0 : 없음
@@ -254,14 +301,20 @@ class Madi {
   int rhythmUpper;
   List<Note> notes;
   Madi(
-      {@required this.isClefShown,
-      @required this.isRhythmShown,
+      {@required this.isRhythmShown,
       @required this.endType,
       @required this.clef,
       @required this.scale,
       @required this.rhythmUnder,
       @required this.rhythmUpper,
       @required this.notes});
+  int getNotesLength() {
+    int size = 0;
+    notes.forEach((note) {
+      size = size + 1;
+    });
+    return size;
+  }
 }
 
 //음자리표 그려주는 함수
@@ -328,14 +381,7 @@ Widget createMadi(Madi madi, double madiWidth) {
   List<Widget> widgets = [];
   double widgetHeight = 70; // 디바이스의 크기가져와서 계산 or 고정
 
-  if (madi.isClefShown) {
-    madiWidth = madiWidth + widgetHeight / 4;
-  }
-  if (madi.isRhythmShown) {
-    madiWidth = madiWidth + widgetHeight / 4;
-  }
-
-  double startPosition = madiWidth * 0.05;
+  double startPosition = madiWidth * 0.08;
   double endPosition = madiWidth * 0.95;
 
   //기본 오선보 삽입
@@ -354,7 +400,7 @@ Widget createMadi(Madi madi, double madiWidth) {
   });
 
   // 음자리표 삽입
-  if (madi.isClefShown) {
+  if (madi.clef != 0) {
     widgets.add(drawClef(true, widgetHeight));
     widgets.add(drawClef(true, widgetHeight));
     startPosition = startPosition + widgetHeight / 4;
