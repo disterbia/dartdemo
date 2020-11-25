@@ -192,8 +192,18 @@ class SamplePage extends StatelessWidget {
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-
-      Note(pitch: 65, leng: 4000),
+      Note(pitch: 60, leng: 1000),
+      Note(pitch: 62, leng: 2000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 60, leng: 1000),
+      Note(pitch: 62, leng: 2000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 60, leng: 1000),
+      Note(pitch: 62, leng: 2000),
+      Note(pitch: 64, leng: 1000),
+      Note(pitch: 60, leng: 1000),
+      Note(pitch: 62, leng: 2000),
+      Note(pitch: 64, leng: 1000),
 
 
     ],
@@ -213,6 +223,42 @@ class SamplePage extends StatelessWidget {
                 tempo: 120,
                 title: "나비야"),
             context));
+    return Scaffold(
+        appBar: AppBar(title: Text("악보선택")),
+        body: Column(
+          children: [
+            RaisedButton(
+                child: Text("나비야"),
+                onPressed: () =>
+                    Navigator.pushNamed(context, "mainPage",
+                        arguments: Song(id: 0,
+                            title: "데모곡",
+                            notes: song[0],
+                            rhythmUnder: 4,
+                            rhythmUpper: 4,
+                            tempo: 120))),
+            RaisedButton(
+                child: Text("비행기"),
+                onPressed: () =>
+                    Navigator.pushNamed(context, "mainPage",
+                        arguments: Song(id: 1,
+                            title: "비행기",
+                            notes: song[1],
+                            rhythmUnder: 4,
+                            rhythmUpper: 4,
+                            tempo: 120))),
+            RaisedButton(
+                child: Text("쉽지않아"),
+                onPressed: () =>
+                    Navigator.pushNamed(context, "mainPage",
+                        arguments: Song(id: 2,
+                            title: "쉽지않아",
+                            notes: song[2],
+                            rhythmUnder: 4,
+                            rhythmUpper: 4,
+                            tempo: 120)))
+          ],
+        ));
   }
 }
 
