@@ -151,61 +151,48 @@ class SamplePage extends StatelessWidget {
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 64, leng: 1000),
       Note(pitch: 65, leng: 1000),
       Note(pitch: 65, leng: 1000),
-
-
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 64, leng: 1000),
       Note(pitch: 65, leng: 1000),
       Note(pitch: 65, leng: 1000),
-
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-
       Note(pitch: 65, leng: 4000),
       Note(pitch: 65, leng: 4000),
-
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-
       Note(pitch: 65, leng: 4000),
-
-
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-
       Note(pitch: 65, leng: 4000),
       Note(pitch: 65, leng: 4000),
-
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-      Note(pitch: 60, leng: 1000),
+      Note(pitch: 72, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-      Note(pitch: 60, leng: 1000),
+      Note(pitch: 72, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-      Note(pitch: 60, leng: 1000),
+      Note(pitch: 72, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-      Note(pitch: 60, leng: 1000),
+      Note(pitch: 64, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
-      Note(pitch: 60, leng: 1000),
+      Note(pitch: 62, leng: 1000),
       Note(pitch: 62, leng: 2000),
-      Note(pitch: 64, leng: 1000),
-
-
+      Note(pitch: 65, leng: 1000),
     ],
   };
 
@@ -223,42 +210,42 @@ class SamplePage extends StatelessWidget {
                 tempo: 120,
                 title: "나비야"),
             context));
-    return Scaffold(
-        appBar: AppBar(title: Text("악보선택")),
-        body: Column(
-          children: [
-            RaisedButton(
-                child: Text("나비야"),
-                onPressed: () =>
-                    Navigator.pushNamed(context, "mainPage",
-                        arguments: Song(id: 0,
-                            title: "데모곡",
-                            notes: song[0],
-                            rhythmUnder: 4,
-                            rhythmUpper: 4,
-                            tempo: 120))),
-            RaisedButton(
-                child: Text("비행기"),
-                onPressed: () =>
-                    Navigator.pushNamed(context, "mainPage",
-                        arguments: Song(id: 1,
-                            title: "비행기",
-                            notes: song[1],
-                            rhythmUnder: 4,
-                            rhythmUpper: 4,
-                            tempo: 120))),
-            RaisedButton(
-                child: Text("쉽지않아"),
-                onPressed: () =>
-                    Navigator.pushNamed(context, "mainPage",
-                        arguments: Song(id: 2,
-                            title: "쉽지않아",
-                            notes: song[2],
-                            rhythmUnder: 4,
-                            rhythmUpper: 4,
-                            tempo: 120)))
-          ],
-        ));
+    // return Scaffold(
+    //     appBar: AppBar(title: Text("악보선택")),
+    //     body: Column(
+    //       children: [
+    //         RaisedButton(
+    //             child: Text("나비야"),
+    //             onPressed: () =>
+    //                 Navigator.pushNamed(context, "mainPage",
+    //                     arguments: Song(id: 0,
+    //                         title: "데모곡",
+    //                         notes: song[0],
+    //                         rhythmUnder: 4,
+    //                         rhythmUpper: 4,
+    //                         tempo: 120))),
+    //         RaisedButton(
+    //             child: Text("비행기"),
+    //             onPressed: () =>
+    //                 Navigator.pushNamed(context, "mainPage",
+    //                     arguments: Song(id: 1,
+    //                         title: "비행기",
+    //                         notes: song[1],
+    //                         rhythmUnder: 4,
+    //                         rhythmUpper: 4,
+    //                         tempo: 120))),
+    //         RaisedButton(
+    //             child: Text("쉽지않아"),
+    //             onPressed: () =>
+    //                 Navigator.pushNamed(context, "mainPage",
+    //                     arguments: Song(id: 2,
+    //                         title: "쉽지않아",
+    //                         notes: song[2],
+    //                         rhythmUnder: 4,
+    //                         rhythmUpper: 4,
+    //                         tempo: 120)))
+    //       ],
+    //     ));
   }
 }
 
@@ -302,27 +289,33 @@ ListView createSong(int maxNotesInLine, Song song, BuildContext context) {
   // 줄별로 마디 분배
   int nowNoteCnt = 0;
   int madiCount = 0;
+  int madiTotalSize = madiList.length;
   var tempMadisList = [];
   var temp = [];
   madiList.forEach((madi) {
-    nowNoteCnt = nowNoteCnt + madi.getNotesCount();
-    print(nowNoteCnt);
-    if (nowNoteCnt < maxNotesInLine) {
-      temp.add(madi);
-      madiCount++;
-      if(madiCount == madiList.length){
+    madiCount++;
+    print("$nowNoteCnt ${madi.getNotesCount()} ${madiList.length}");
+    if (madi.getNotesCount() >= maxNotesInLine) {
+      if (temp.length > 0) {
         tempMadisList.add(temp);
-        nowNoteCnt = 0;
+        temp = [];
+      }
+      tempMadisList.add([madi]);
+      nowNoteCnt = 0;
+    } else {
+      if (nowNoteCnt + madi.getNotesCount() > maxNotesInLine) {
+        tempMadisList.add(temp);
+        temp = [madi];
+        nowNoteCnt = madi.getNotesCount();
+      } else {
+        temp.add(madi);
+        nowNoteCnt = nowNoteCnt + madi.getNotesCount();
+      }
+
+      if (madiCount == madiTotalSize) {
+        tempMadisList.add(temp);
       }
     }
-    else if (nowNoteCnt >= maxNotesInLine) {
-      temp.add(madi);
-      madiCount++;
-      tempMadisList.add(temp);
-      nowNoteCnt = 0;
-      temp=[];
-    }
-
   });
 
   // 줄별로 분배된 마디를 위젯으로 만들고 Row에 삽입
