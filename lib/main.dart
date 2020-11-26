@@ -201,7 +201,7 @@ class SamplePage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(title: Text("악보선택")),
         body: createSong(
-            9,
+            8,
             Song(
                 id: 0,
                 notes: song[4],
@@ -286,6 +286,8 @@ ListView createSong(int maxNotesInLine, Song song, BuildContext context) {
   List<Row> rows = [];
   var deviceWidth = MediaQuery.of(context).size.width;
 
+  print(madiList.length);
+
   // 줄별로 마디 분배
   int nowNoteCnt = 0;
   int madiCount = 0;
@@ -294,7 +296,8 @@ ListView createSong(int maxNotesInLine, Song song, BuildContext context) {
   var temp = [];
   madiList.forEach((madi) {
     madiCount++;
-    print("$nowNoteCnt ${madi.getNotesCount()} ${madiList.length}");
+    print(
+        "$madiCount $nowNoteCnt ${madi.getNotesCount()} ${madiList.length} $maxNotesInLine");
     if (madi.getNotesCount() >= maxNotesInLine) {
       if (temp.length > 0) {
         tempMadisList.add(temp);
@@ -318,27 +321,32 @@ ListView createSong(int maxNotesInLine, Song song, BuildContext context) {
     }
   });
 
+  // tempMadisList.forEach((element) {
+  //   print(element.length);
+  // });
   // 줄별로 분배된 마디를 위젯으로 만들고 Row에 삽입
+  int tempCnt = 0;
+  int tempMadisListCnt = tempMadisList.length;
   tempMadisList.forEach((madis) {
+    tempCnt++;
     int cnt = madis.length;
+    double firstWidth = cnt > 1 ? deviceWidth / cnt * 1.17 : deviceWidth;
+    double otherWidth =
+        cnt > 1 ? (deviceWidth - firstWidth) / (cnt - 1) : deviceWidth;
     List<Widget> temRowItem = [];
-    var w = deviceWidth;
     for (int i = 0; i < cnt; i++) {
       double widthSize = 0;
       if (i == 0) {
         madis[i].clef = 1;
         madis[i].isRhythmShown = true;
-        if (cnt > 1) {
-          widthSize = deviceWidth / cnt * 1.1;
-          w = w - widthSize;
-        }
-      } else if (i == cnt - 1) {
-        madis[i].endType = 2;
-        widthSize = w / (cnt - 1);
+        madis[i].endType = cnt == 1 && tempCnt == tempMadisListCnt ? 2 : 0;
+        widthSize = cnt == 1 && tempCnt == tempMadisListCnt
+            ? firstWidth / maxNotesInLine * madis[i].getNotesCount()
+            : firstWidth;
       } else {
-        widthSize = w / (cnt - 1);
+        widthSize = otherWidth;
       }
-      temRowItem.add(createMadi(madis[i], deviceWidth / cnt));
+      temRowItem.add(createMadi(madis[i], widthSize));
     }
     rows.add(Row(
       children: temRowItem,
