@@ -1,5 +1,14 @@
 PODS:
+  - AudioKit (4.11.2):
+    - AudioKit/Core (= 4.11.2)
+    - AudioKit/UI (= 4.11.2)
+  - AudioKit/Core (4.11.2)
+  - AudioKit/UI (4.11.2):
+    - AudioKit/Core
   - Flutter (1.0.0)
+  - flutter_sequencer (0.0.1):
+    - AudioKit
+    - Flutter
   - "permission_handler (5.0.1+1)":
     - Flutter
   - pitchdetector (0.0.1):
@@ -7,22 +16,31 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
+  - flutter_sequencer (from `.symlinks/plugins/flutter_sequencer/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - pitchdetector (from `.symlinks/plugins/pitchdetector/ios`)
+
+SPEC REPOS:
+  trunk:
+    - AudioKit
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
+  flutter_sequencer:
+    :path: ".symlinks/plugins/flutter_sequencer/ios"
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
   pitchdetector:
     :path: ".symlinks/plugins/pitchdetector/ios"
 
 SPEC CHECKSUMS:
+  AudioKit: 57cc61d708f085763a031e5c3f87adae21dc4b59
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_sequencer: 0ef072d5145a7675bea148e83da34bafe53aad84
   permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
   pitchdetector: ca89af540a8dcc41299f4a54438f4e577f04010a
 
-PODFILE CHECKSUM: 083258d7f5e80b42ea9bfee905fe93049bc04c64
+PODFILE CHECKSUM: 98f6f6bdd9ce7fd2575a630cff85163adef598e9
 
 COCOAPODS: 1.10.0

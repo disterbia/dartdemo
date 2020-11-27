@@ -13,6 +13,8 @@ dependencies:
   flutter_svg: ^0.19.1
   pitchdetector: ^0.0.3+6
   scrollable_positioned_list: ^0.1.8
+  flutter_sequencer: ^0.1.2
+  dart_midi: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -24,4 +26,6 @@ flutter:
 
   assets:
     - assets/
+    - assets/midi/
+    - assets/sf2/
 
