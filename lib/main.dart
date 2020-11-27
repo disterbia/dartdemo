@@ -19,8 +19,7 @@ void main() {
 
 //도:6레:14미:21파:27솔:34라:40시:47도:54레:64
 class SamplePage extends StatelessWidget {
-  final seq = Sequence(tempo: 130, endBeat: 5000);
-
+  Song temp;
   var song = {
     0: [
       Note(pitch: 67, leng: 1000),
@@ -78,77 +77,7 @@ class SamplePage extends StatelessWidget {
       Note(pitch: 64, leng: 1000),
       Note(pitch: 64, leng: 2000),
     ],
-    1: [
-      Note(pitch: 21, leng: 40),
-      Note(pitch: 14, leng: 10),
-      Note(pitch: 6, leng: 10),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 21, leng: 40),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 14, leng: 40),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 34, leng: 20),
-      Note(pitch: 34, leng: 40),
-      Note(pitch: 21, leng: 40),
-      Note(pitch: 14, leng: 10),
-      Note(pitch: 6, leng: 10),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 21, leng: 40),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 6, leng: 80),
-    ],
     2: [
-      Note(pitch: 54, leng: 20),
-      Note(pitch: 54, leng: 20),
-      Note(pitch: 60, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 54, leng: 20),
-      Note(pitch: 54, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 60, leng: 20),
-      Note(pitch: 54, leng: 20),
-      Note(pitch: 21, leng: 20),
-      Note(pitch: 27, leng: 40),
-      Note(pitch: 54, leng: 20),
-      Note(pitch: 47, leng: 20),
-      Note(pitch: 47, leng: 20),
-      Note(pitch: 54, leng: 20),
-      Note(pitch: 60, leng: 20),
-      Note(pitch: 47, leng: 40),
-    ],
-    3: [
-      Note(pitch: 6, leng: 20),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 21, leng: 40),
-      Note(pitch: 27, leng: 20),
-      Note(pitch: 34, leng: 30),
-      Note(pitch: 40, leng: 20),
-      Note(pitch: 47, leng: 20),
-      Note(pitch: 54, leng: 30),
-      Note(pitch: 60, leng: 40),
-      Note(pitch: 6, leng: 20),
-      Note(pitch: 14, leng: 20),
-      Note(pitch: 21, leng: 40),
-      Note(pitch: 27, leng: 20),
-      Note(pitch: 34, leng: 30),
-      Note(pitch: 40, leng: 20),
-      Note(pitch: 47, leng: 20),
-      Note(pitch: 54, leng: 30),
-      Note(pitch: 60, leng: 40),
-      Note(pitch: 47, leng: 20),
-      Note(pitch: 47, leng: 20),
-    ],
-    4: [
       Note(pitch: 60, leng: 1000),
       Note(pitch: 62, leng: 2000),
       Note(pitch: 64, leng: 1000),
@@ -199,6 +128,7 @@ class SamplePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    temp = midiToSong("assets/midi/wc_test.mid");
     // return Scaffold(
     //     appBar: AppBar(title: Text("악보선택")),
     //     body: createSong(
@@ -227,18 +157,8 @@ class SamplePage extends StatelessWidget {
                         tempo: 120))),
             RaisedButton(
                 child: Text("비행기"),
-                onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: midiToTracks("assets/midi/wc_test.mid", seq))),
-            RaisedButton(
-                child: Text("쉽지않아"),
-                onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: Song(
-                        id: 2,
-                        title: "쉽지않아",
-                        notes: song[2],
-                        rhythmUnder: 4,
-                        rhythmUpper: 4,
-                        tempo: 120)))
+                onPressed: () =>
+                    Navigator.pushNamed(context, "mainPage", arguments: temp)),
           ],
         ));
   }

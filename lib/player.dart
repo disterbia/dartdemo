@@ -5,6 +5,123 @@ import 'package:flutter_sequencer/instrument.dart';
 import 'package:dart_midi/dart_midi.dart';
 import 'package:flutter/services.dart';
 
+Song midiToSong(String path) {
+  int ticksPerBit = 480;
+  int nowBPM = 120;
+  List<MidiNote> recorderMelodyArr = [];
+  int recorderLineIndex = -1;
+  bool isRhythmSet = false;
+  bool isBpmSet = false;
+  Song song = Song(
+      id: 0,
+      title: "Untitled",
+      tempo: 120,
+      notes: [],
+      rhythmUnder: 4,
+      rhythmUpper: 4);
+
+  try {
+    rootBundle.load(path).then((value) {
+      var parsedMidi = MidiParser().parseMidiFromBuffer(
+          value.buffer.asUint8List(value.offsetInBytes, value.lengthInBytes));
+      List<Instrument> instruments = [];
+
+      var parsedMidiTracks = parsedMidi.tracks;
+      int parsedMidiTracksCnt = parsedMidiTracks.length;
+
+      /*
+       * 미디분석 (트랙 갯수, 트랙악기명)
+       */
+      for (int i = 0; i < parsedMidiTracksCnt; i++) {
+        Sf2Instrument sf2Inst = null;
+        parsedMidiTracks[i].forEach((midiEvent) {
+          if (midiEvent is TrackNameEvent) {
+            String instName = (midiEvent as TrackNameEvent).text;
+            if (instName.toLowerCase().contains("recorder")) {
+              recorderLineIndex = i;
+              sf2Inst =
+                  Sf2Instrument(path: "assets/Recorder.sf2", isAsset: true);
+            }
+          } else if (midiEvent is TimeSignatureEvent && !isRhythmSet) {
+            TimeSignatureEvent tem = midiEvent;
+            song.rhythmUpper = tem.numerator;
+            song.rhythmUnder = tem.denominator;
+          } else if (midiEvent is SetTempoEvent && !isBpmSet) {
+            SetTempoEvent tem = midiEvent;
+            song.tempo = (60000000 / tem.microsecondsPerBeat).round();
+          }
+
+          // ppp1 pp4 p1 GrandPiano
+          if (sf2Inst == null) {
+            sf2Inst = Sf2Instrument(path: "assets/sf2/ppp1.sf2", isAsset: true);
+          }
+        });
+        instruments.add(sf2Inst);
+      }
+
+      /*
+       * 틱스퍼비트
+       */
+      ticksPerBit = parsedMidi.header.ticksPerBeat;
+
+      /*
+         * 파싱된 미디를 분석 후 플레이어 트랙으로 만듦
+         */
+      int trackIndex = 0;
+      parsedMidiTracks.forEach((midiTrack) {
+        List<int> pitchs = [];
+        List<double> startPositions = [];
+        List<int> velocitys = [];
+        List<double> durations = [];
+
+        double pos = 0;
+        int originPos = 0;
+
+        midiTrack.forEach((element) {
+          if (element is ControllerEvent ||
+              element is NoteOnEvent ||
+              element is NoteOffEvent) {
+            originPos = originPos + element.deltaTime;
+            pos = pos + (element.deltaTime * (120 / nowBPM));
+          }
+
+          if (element is NoteOnEvent) {
+            pitchs.add(element.noteNumber);
+            velocitys.add(element.velocity);
+            startPositions.add(pos);
+          }
+          if (element is NoteOffEvent) {
+            double tem = element.deltaTime == 0
+                ? durations[durations.length - 1]
+                : element.deltaTime * (120 / nowBPM);
+            durations.add(tem);
+          }
+        });
+
+        if (pitchs.length > 0) {
+          int index = pitchs.length;
+          for (var i = 0; i < index; i++) {
+            if (trackIndex == recorderLineIndex) {
+              recorderMelodyArr.add(MidiNote(
+                  pitch: pitchs[i],
+                  startPosition: startPositions[i] / ticksPerBit * 1000,
+                  dulation: ((durations[i] / ticksPerBit) * 100).ceil() * 10));
+            }
+          }
+        }
+
+        trackIndex++;
+      });
+
+      song.notes =
+          midiNoteToNote(recorderMelodyArr, song.rhythmUpper, song.rhythmUnder);
+    });
+    return song;
+  } catch (e) {
+    print("fuck");
+  }
+}
+
 Song midiToTracks(String path, Sequence seq) {
   int ticksPerBit = 480;
   int nowBPM = 120;
