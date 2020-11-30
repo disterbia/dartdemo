@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
 import 'package:flutter_midi_example/model/song.dart';
 import 'package:flutter_midi_example/player.dart';
-import 'package:flutter_midi_example/shit_music.dart';
 import 'package:flutter_midi_example/temp.dart';
-import 'package:flutter_sequencer/sequence.dart';
+//import 'package:flutter_sequencer/sequence.dart';
 
 // import 'web_midi.dart';
 
@@ -128,7 +127,7 @@ class SamplePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    temp = midiToSong("assets/midi/wc_test.mid");
+    //temp = midiToSong("assets/midi/wc_test.mid");
     // return Scaffold(
     //     appBar: AppBar(title: Text("악보선택")),
     //     body: createSong(
