@@ -264,24 +264,34 @@
 //     List<MidiNote> midiNote, int rhythmUpper, int rhythmUnder) {
 //   List<Note> notes = [];
 //   int maxLengthOfMadi = (4000 / rhythmUnder).round();
+//   int nowMadiLength = 0; //쉽표쪼개기용 1000|0111 일때 쉼표 4000으로 인식 안되게...
 //   maxLengthOfMadi *= rhythmUpper;
 //   int position = 0;
 //   midiNote.forEach((note) {
+//     print("${note.pitch} ${note.startPosition} ${position}");
+//     // print("${nowMadiLength} ${note.dulation}");
 //     if (position == note.startPosition) {
 //       notes.add(Note(leng: note.dulation, pitch: note.pitch, state: 0));
-//       position += note.dulation;
+//       position = note.dulation + note.startPosition.toInt();
+//       nowMadiLength = nowMadiLength + note.dulation >= maxLengthOfMadi
+//           ? 0
+//           : nowMadiLength + note.dulation;
 //     } else {
 //       //쉼표처리
 //       List<int> restNotes = [4000, 3000, 2000, 1500, 1000, 750, 500, 375, 250];
 //       int restLength = note.startPosition.toInt() - position;
 
 //       restNotes.forEach((nowRest) {
-//         if (maxLengthOfMadi >= nowRest) {
+//         if (maxLengthOfMadi >= nowRest &&
+//             nowMadiLength + nowRest <= maxLengthOfMadi) {
 //           int cnt = (restLength / nowRest).floor();
 //           if (cnt > 0) {
 //             restLength -= nowRest * cnt;
 //             for (int i = 0; i < cnt; i++) {
 //               notes.add(Note(leng: nowRest, pitch: -1, state: 0));
+//               nowMadiLength = nowMadiLength + nowRest >= maxLengthOfMadi
+//                   ? 0
+//                   : nowMadiLength + nowRest;
 //             }
 //           }
 //         }
@@ -289,7 +299,10 @@
 
 //       //쉼표 후 노트삽입
 //       notes.add(Note(leng: note.dulation, pitch: note.pitch, state: 0));
-//       position += note.dulation + note.startPosition.toInt();
+//       position = note.dulation + note.startPosition.toInt();
+//       nowMadiLength = nowMadiLength + note.dulation >= maxLengthOfMadi
+//           ? 0
+//           : nowMadiLength + note.dulation;
 //     }
 //   });
 //   return notes;
