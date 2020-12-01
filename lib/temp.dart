@@ -117,7 +117,7 @@ class _MyAppState extends State<MyApp> {
               if (isRecording) {
                 setState(() {
                   print((pitch ?? 0).ceil());
-                  (pitch ?? 0).ceil().toInt() > 300
+                  (pitch ?? 0).ceil().toInt() >= pitchScore(song.notes[i].pitch) && (pitch ?? 0).ceil().toInt() <= pitchScore(song.notes[i].pitch) +30
                       ? check[i] = 2
                       : check[i] = 3;
                   pitch = 0;
@@ -229,6 +229,7 @@ class _MyAppState extends State<MyApp> {
     int tempCnt = 0;
     int tempMadisListCnt = tempMadisList.length;
     int size = 0;
+    toScroll.add(0);
     tempMadisList.forEach((madis) {
       tempCnt++;
       int cnt = madis.length;
@@ -259,7 +260,7 @@ class _MyAppState extends State<MyApp> {
       madis.forEach((madi) {
         size += madi.notes.length;
       });
-      toScroll[size - 1] = 1;
+      toScroll[size] = 1;
     });
 
     // 2. 마디 리스트 아이템의 노트 갯수와 한줄에 허용되는 노트의 갯수와 맞게 Row List화
@@ -283,7 +284,7 @@ class _MyAppState extends State<MyApp> {
               child: RaisedButton(onPressed: () async {
                 print(isRecording);
                 scrollController.scrollTo(
-                    index: 0, duration: Duration(milliseconds: 500));
+                    index: 0, duration: Duration(milliseconds: 300));
                 return !isRecording ? startRecording() : stopRecording();
               }),
               height: orientation == Orientation.landscape
@@ -349,7 +350,7 @@ class _MyAppState extends State<MyApp> {
     if (ckIndex == check.length) ckIndex = 0;
     madi.notes.forEach((note) {
       widgets.add(Positioned(
-        bottom: widgetHeight * pitchParser(note.pitch),
+        bottom: widgetHeight * pitchParser(note.pitch==-1&&note.leng>1500?-2:note.pitch),
         left: nowPosition,
         child: SvgPicture.asset(
           note.pitch < 71
@@ -368,8 +369,17 @@ class _MyAppState extends State<MyApp> {
                   : check[ckIndex] == 2
                       ? Colors.greenAccent
                       : Colors.red,
-          height: note.pitch!=-1?note.leng == 4000 ?
-          widgetHeight / 10 : widgetHeight / 2: note.leng<1000?widgetHeight /3  : widgetHeight / 3,
+          height: note.pitch != -1
+              ? note.leng == 4000
+                  ? widgetHeight / 10
+                  : widgetHeight / 2
+              : note.leng < 500
+                  ? widgetHeight / 3
+                  : note.leng < 1000
+                      ? widgetHeight / 4
+                      : note.leng < 2000
+                          ? widgetHeight / 3
+                          : widgetHeight / 9,
         ),
       ));
       nowPosition = nowPosition + note.leng / 1000 * interval;
