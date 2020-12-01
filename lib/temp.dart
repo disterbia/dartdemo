@@ -19,9 +19,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<int> notes = [];
-  List<List<int>> rowForScroll = [];
   List<int> check= [];
+  List<int> toScroll = [];
+  int rownum =1;
   bool isFirst = true;
   Song song;
   bool isDisposed = false;
@@ -75,6 +75,7 @@ class _MyAppState extends State<MyApp> {
     if(isFirst){
       for(var i = 0 ; i<song.notes.length;i++){
         check.add(0);
+        toScroll.add(0);
         isFirst=false;
       }
     }
@@ -107,9 +108,11 @@ class _MyAppState extends State<MyApp> {
               }
             }
           });
-          if (!isDisposed) if ((i + 1) % 8 == 1 && i != 0)
+          if (!isDisposed) if (toScroll[i]==1){
             scrollController.scrollTo(
-                index: (i + 1) ~/ 8, duration: Duration(milliseconds: 500));
+                index: rownum, duration: Duration(milliseconds: 500));
+            rownum++;
+          }
           await Future.delayed(Duration(milliseconds: 500), () {
             if (!isDisposed) {
               if (isRecording) {
@@ -214,12 +217,14 @@ class _MyAppState extends State<MyApp> {
       }
     });
 
+
     // tempMadisList.forEach((element) {
     //   print(element.length);
     // });
     // 줄별로 분배된 마디를 위젯으로 만들고 Row에 삽입
     int tempCnt = 0;
     int tempMadisListCnt = tempMadisList.length;
+    int size = 0;
     tempMadisList.forEach((madis) {
       tempCnt++;
       int cnt = madis.length;
@@ -245,6 +250,10 @@ class _MyAppState extends State<MyApp> {
       rows.add(Row(
         children: temRowItem,
       ));
+      madis.forEach((madi){
+        size += madi.notes.length;
+      });
+      toScroll[size-1] = 1;
     });
 
     // 2. 마디 리스트 아이템의 노트 갯수와 한줄에 허용되는 노트의 갯수와 맞게 Row List화
@@ -268,6 +277,8 @@ class _MyAppState extends State<MyApp> {
             Container(
               child: RaisedButton(onPressed: () async{
                 print(isRecording);
+                scrollController.scrollTo(
+                    index: 0, duration: Duration(milliseconds: 500));
                 return !isRecording?startRecording():stopRecording();
         } ),
               height: orientation == Orientation.landscape
@@ -332,7 +343,6 @@ class _MyAppState extends State<MyApp> {
 
     if(ckIndex==check.length) ckIndex=0;
     madi.notes.forEach((note) {
-      if(ckIndex>= check.length) ckIndex=check.length-1;
       widgets.add(Positioned(
         bottom: widgetHeight * pitchParser(note.pitch),
         left: nowPosition,
