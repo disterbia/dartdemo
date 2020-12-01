@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter_midi_example/model/song.dart';
 import 'package:flutter_midi_example/player.dart';
 import 'package:flutter_midi_example/temp.dart';
-//import 'package:flutter_sequencer/sequence.dart';
+import 'package:flutter_sequencer/sequence.dart';
 
 // import 'web_midi.dart';
 
@@ -21,13 +21,13 @@ class SamplePage extends StatelessWidget {
   Song temp;
   var song = {
     0: [
-      Note(pitch: 67, leng: 1000),
-      Note(pitch: 67, leng: 2000),
-      Note(pitch: 67, leng: 1000),
+      Note(pitch: 67, leng: 1500),
+      Note(pitch: -1, leng: 1000),
+      Note(pitch: 67, leng: 4000),
       Note(pitch: 65, leng: 1000),
-      Note(pitch: 62, leng: 1000),
-      Note(pitch: 62, leng: 2000),
-      Note(pitch: 60, leng: 1000),
+      Note(pitch: 62, leng: 4000),
+      Note(pitch: -1, leng: 1500),
+      Note(pitch: -1, leng: 3000),
       Note(pitch: 62, leng: 1000),
       Note(pitch: 64, leng: 1000),
       Note(pitch: 65, leng: 1000),

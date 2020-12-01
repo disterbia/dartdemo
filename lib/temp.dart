@@ -19,15 +19,16 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<int> check= [];
-  List<int> toScroll = [];
-  int rownum =1;
-  bool isFirst = true;
+  List<int> check = []; //음표 진행상태, 점수 체크용
+  List<int> toScroll = []; //현재 진행중인 row위치 체크용
+  List<int> toTempo = []; // 현재 진행중인 음표의 박자 체크용
+  int rownum = 1; // row index
+  bool isFirst = true; // initstate 안에 넣을수 없는 최초실행 확인 여부
   Song song;
-  bool isDisposed = false;
+  bool isDisposed = false; //disopse안에 넣을수 없는 값들을위해  dispose가 되었는지 확인
   ItemScrollController scrollController = ItemScrollController();
 
-  int ckIndex = 0;
+  int ckIndex = 0; //음표진행상태 음표 index
 
   Pitchdetector detector;
   bool isRecording = false;
@@ -72,12 +73,13 @@ class _MyAppState extends State<MyApp> {
     // if (MediaQuery.of(context).orientation == Orientation.portrait)
     //   return Container();
     song = ModalRoute.of(context).settings.arguments;
-    if(isFirst){
-      for(var i = 0 ; i<song.notes.length;i++){
+    if (isFirst) {
+      song.notes.forEach((note) {
         check.add(0);
         toScroll.add(0);
-        isFirst=false;
-      }
+        toTempo.add(note.leng * 60 ~/ song.tempo);
+        isFirst = false;
+      });
     }
 
     // song.notes.forEach((note) {
@@ -88,6 +90,7 @@ class _MyAppState extends State<MyApp> {
         body: createSong(8, song, context));
   }
 
+  //pitch detector start
   void startRecording() async {
     await detector.startRecording();
 
@@ -96,24 +99,20 @@ class _MyAppState extends State<MyApp> {
         isRecording = true;
       });
     }
+    //음표 진행상태 색변경
     if (!isDisposed) {
-        for (var i = 0; i < check.length; i++) {
-          if (!isRecording) break;
-          await Future.delayed(Duration(milliseconds: 500), () {
-            if (isRecording) {
-              if (!isDisposed) {
-                setState(() {
-                  check[i] = 1;
-                });
-              }
+      for (var i = 0; i < check.length; i++) {
+        if (!isRecording) break;
+        await Future.delayed(
+            Duration(milliseconds: toTempo[i == 0 ? 0 : i - 1]), () {
+          if (isRecording) {
+            if (!isDisposed) {
+              setState(() {
+                check[i] = 1;
+              });
             }
-          });
-          if (!isDisposed) if (toScroll[i]==1){
-            scrollController.scrollTo(
-                index: rownum, duration: Duration(milliseconds: 500));
-            rownum++;
           }
-          await Future.delayed(Duration(milliseconds: 500), () {
+          Future.delayed(Duration(milliseconds: toTempo[i == 0 ? 0 : i]), () {
             if (!isDisposed) {
               if (isRecording) {
                 setState(() {
@@ -126,8 +125,16 @@ class _MyAppState extends State<MyApp> {
               }
             }
           });
+        });
+        // row 하나 끝날떄마다 스크롤
+        if (!isDisposed) if (toScroll[i] == 1) {
+          scrollController.scrollTo(
+              index: rownum, duration: Duration(milliseconds: 500));
+          rownum++;
         }
+        // 음표 pitch체크 색변경
 
+      }
     }
   }
 
@@ -136,11 +143,12 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       isRecording = false;
       pitch = detector.pitch;
-        for (var i = 0; i < check.length; i++) {
-          check[i] = 0;
-        }
+      for (var i = 0; i < check.length; i++) {
+        check[i] = 0;
+      }
     });
   }
+
   /*
   * sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet
   * sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet sheet
@@ -217,10 +225,6 @@ class _MyAppState extends State<MyApp> {
       }
     });
 
-
-    // tempMadisList.forEach((element) {
-    //   print(element.length);
-    // });
     // 줄별로 분배된 마디를 위젯으로 만들고 Row에 삽입
     int tempCnt = 0;
     int tempMadisListCnt = tempMadisList.length;
@@ -250,20 +254,21 @@ class _MyAppState extends State<MyApp> {
       rows.add(Row(
         children: temRowItem,
       ));
-      madis.forEach((madi){
+
+      //현재 진행중인 row의 위치를 알기위해
+      madis.forEach((madi) {
         size += madi.notes.length;
       });
-      toScroll[size-1] = 1;
+      toScroll[size - 1] = 1;
     });
 
     // 2. 마디 리스트 아이템의 노트 갯수와 한줄에 허용되는 노트의 갯수와 맞게 Row List화
-    var scroll =ScrollablePositionedList.builder(
+    var scroll = ScrollablePositionedList.builder(
         itemScrollController: scrollController,
         itemCount: rows.length,
         itemBuilder: (context, index) {
           return rows[index];
-        })
-    ;
+        });
     // 3. 컨테이너 return
     return OrientationBuilder(
       builder: (context, orientation) {
@@ -275,12 +280,12 @@ class _MyAppState extends State<MyApp> {
                     ? height * 0.6
                     : height * 0.8),
             Container(
-              child: RaisedButton(onPressed: () async{
+              child: RaisedButton(onPressed: () async {
                 print(isRecording);
                 scrollController.scrollTo(
                     index: 0, duration: Duration(milliseconds: 500));
-                return !isRecording?startRecording():stopRecording();
-        } ),
+                return !isRecording ? startRecording() : stopRecording();
+              }),
               height: orientation == Orientation.landscape
                   ? height * 0.1
                   : height * 0.05,
@@ -337,31 +342,34 @@ class _MyAppState extends State<MyApp> {
     var interval = madi.rhythmUnder == 4
         ? (endPosition - startPosition) / madi.rhythmUpper
         : (endPosition - startPosition) /
-        madi.rhythmUpper *
-        madi.rhythmUnder /
-        4;
+            madi.rhythmUpper *
+            madi.rhythmUnder /
+            4;
 
-    if(ckIndex==check.length) ckIndex=0;
+    if (ckIndex == check.length) ckIndex = 0;
     madi.notes.forEach((note) {
       widgets.add(Positioned(
         bottom: widgetHeight * pitchParser(note.pitch),
         left: nowPosition,
         child: SvgPicture.asset(
           note.pitch < 71
-              ? note.pitch != 60
-              ? "assets/note${note.leng}.svg"
-              : "assets/note${note.leng}_c.svg"
+              ? note.pitch == -1
+                  ? "assets/rest${note.leng}.svg"
+                  : note.pitch != 60
+                      ? "assets/note${note.leng}.svg"
+                      : "assets/note${note.leng}_c.svg"
               : note.pitch != 60
-              ? "assets/note${note.leng}_2.svg"
-              : "assets/note${note.leng}_2c.svg",
+                  ? "assets/note${note.leng}_2.svg"
+                  : "assets/note${note.leng}_2c.svg",
           color: check[ckIndex] == 0
               ? Colors.black
               : check[ckIndex] == 1
-              ? Colors.orange
-              : check[ckIndex] == 2
-              ? Colors.greenAccent
-              : Colors.red,
-          height: note.leng == 4000 ? widgetHeight / 10 : widgetHeight / 2,
+                  ? Colors.orange
+                  : check[ckIndex] == 2
+                      ? Colors.greenAccent
+                      : Colors.red,
+          height: note.pitch!=-1?note.leng == 4000 ?
+          widgetHeight / 10 : widgetHeight / 2: note.leng<1000?widgetHeight /3  : widgetHeight / 3,
         ),
       ));
       nowPosition = nowPosition + note.leng / 1000 * interval;
@@ -372,6 +380,4 @@ class _MyAppState extends State<MyApp> {
       children: widgets,
     );
   }
-
 }
-
