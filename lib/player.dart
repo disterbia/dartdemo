@@ -4,7 +4,7 @@
 // import 'package:flutter_sequencer/instrument.dart';
 // import 'package:dart_midi/dart_midi.dart';
 // import 'package:flutter/services.dart';
-//
+
 // Song midiToSong(String path) {
 //   int ticksPerBit = 480;
 //   int nowBPM = 120;
@@ -19,16 +19,16 @@
 //       notes: [],
 //       rhythmUnder: 4,
 //       rhythmUpper: 4);
-//
+
 //   try {
 //     rootBundle.load(path).then((value) {
 //       var parsedMidi = MidiParser().parseMidiFromBuffer(
 //           value.buffer.asUint8List(value.offsetInBytes, value.lengthInBytes));
 //       List<Instrument> instruments = [];
-//
+
 //       var parsedMidiTracks = parsedMidi.tracks;
 //       int parsedMidiTracksCnt = parsedMidiTracks.length;
-//
+
 //       /*
 //        * 미디분석 (트랙 갯수, 트랙악기명)
 //        */
@@ -50,7 +50,7 @@
 //             SetTempoEvent tem = midiEvent;
 //             song.tempo = (60000000 / tem.microsecondsPerBeat).round();
 //           }
-//
+
 //           // ppp1 pp4 p1 GrandPiano
 //           if (sf2Inst == null) {
 //             sf2Inst = Sf2Instrument(path: "assets/sf2/ppp1.sf2", isAsset: true);
@@ -58,12 +58,12 @@
 //         });
 //         instruments.add(sf2Inst);
 //       }
-//
+
 //       /*
 //        * 틱스퍼비트
 //        */
 //       ticksPerBit = parsedMidi.header.ticksPerBeat;
-//
+
 //       /*
 //          * 파싱된 미디를 분석 후 플레이어 트랙으로 만듦
 //          */
@@ -73,18 +73,19 @@
 //         List<double> startPositions = [];
 //         List<int> velocitys = [];
 //         List<double> durations = [];
-//
+
 //         double pos = 0;
 //         int originPos = 0;
-//
+
 //         midiTrack.forEach((element) {
-//           if (element is ControllerEvent ||
+//           if (element is SetTempoEvent ||
+//               element is ControllerEvent ||
 //               element is NoteOnEvent ||
 //               element is NoteOffEvent) {
 //             originPos = originPos + element.deltaTime;
 //             pos = pos + (element.deltaTime * (120 / nowBPM));
 //           }
-//
+
 //           if (element is NoteOnEvent) {
 //             pitchs.add(element.noteNumber);
 //             velocitys.add(element.velocity);
@@ -97,7 +98,7 @@
 //             durations.add(tem);
 //           }
 //         });
-//
+
 //         if (pitchs.length > 0) {
 //           int index = pitchs.length;
 //           for (var i = 0; i < index; i++) {
@@ -109,10 +110,10 @@
 //             }
 //           }
 //         }
-//
+
 //         trackIndex++;
 //       });
-//
+
 //       song.notes =
 //           midiNoteToNote(recorderMelodyArr, song.rhythmUpper, song.rhythmUnder);
 //     });
@@ -121,7 +122,7 @@
 //     print("fuck");
 //   }
 // }
-//
+
 // Song midiToTracks(String path, Sequence seq) {
 //   int ticksPerBit = 480;
 //   int nowBPM = 120;
@@ -136,16 +137,16 @@
 //       notes: [],
 //       rhythmUnder: 4,
 //       rhythmUpper: 4);
-//
+
 //   try {
 //     rootBundle.load(path).then((value) {
 //       var parsedMidi = MidiParser().parseMidiFromBuffer(
 //           value.buffer.asUint8List(value.offsetInBytes, value.lengthInBytes));
 //       List<Instrument> instruments = [];
-//
+
 //       var parsedMidiTracks = parsedMidi.tracks;
 //       int parsedMidiTracksCnt = parsedMidiTracks.length;
-//
+
 //       /*
 //        * 미디분석 (트랙 갯수, 트랙악기명)
 //        */
@@ -167,7 +168,7 @@
 //             SetTempoEvent tem = midiEvent;
 //             song.tempo = (60000000 / tem.microsecondsPerBeat).round();
 //           }
-//
+
 //           // ppp1 pp4 p1 GrandPiano
 //           if (sf2Inst == null) {
 //             sf2Inst = Sf2Instrument(path: "assets/sf2/ppp1.sf2", isAsset: true);
@@ -175,18 +176,18 @@
 //         });
 //         instruments.add(sf2Inst);
 //       }
-//
+
 //       /*
 //        * 틱스퍼비트
 //        */
 //       ticksPerBit = parsedMidi.header.ticksPerBeat;
-//
+
 //       /*
 //        * 앱 내 플레이어(시퀀서) 트랙만들기 시작
 //        */
 //       seq.createTracks(instruments).then((realTracks) {
 //         int trackIndex = 0;
-//
+
 //         /*
 //          * 파싱된 미디를 분석 후 플레이어 트랙으로 만듦
 //          */
@@ -195,10 +196,10 @@
 //           List<double> startPositions = [];
 //           List<int> velocitys = [];
 //           List<double> durations = [];
-//
+
 //           double pos = 0;
 //           int originPos = 0;
-//
+
 //           midiTrack.forEach((element) {
 //             if (element is ControllerEvent ||
 //                 element is NoteOnEvent ||
@@ -206,7 +207,7 @@
 //               originPos = originPos + element.deltaTime;
 //               pos = pos + (element.deltaTime * (120 / nowBPM));
 //             }
-//
+
 //             if (element is NoteOnEvent) {
 //               pitchs.add(element.noteNumber);
 //               velocitys.add(element.velocity);
@@ -219,7 +220,7 @@
 //               durations.add(tem);
 //             }
 //           });
-//
+
 //           if (pitchs.length > 0) {
 //             int index = pitchs.length;
 //             for (var i = 0; i < index; i++) {
@@ -248,7 +249,7 @@
 //           }
 //           trackIndex++;
 //         });
-//
+
 //         song.notes = midiNoteToNote(
 //             recorderMelodyArr, song.rhythmUpper, song.rhythmUnder);
 //       });
@@ -258,7 +259,7 @@
 //     print("fuck");
 //   }
 // }
-//
+
 // List<Note> midiNoteToNote(
 //     List<MidiNote> midiNote, int rhythmUpper, int rhythmUnder) {
 //   List<Note> notes = [];
@@ -273,7 +274,7 @@
 //       //쉼표처리
 //       List<int> restNotes = [4000, 3000, 2000, 1500, 1000, 750, 500, 375, 250];
 //       int restLength = note.startPosition.toInt() - position;
-//
+
 //       restNotes.forEach((nowRest) {
 //         if (maxLengthOfMadi >= nowRest) {
 //           int cnt = (restLength / nowRest).floor();
@@ -285,7 +286,7 @@
 //           }
 //         }
 //       });
-//
+
 //       //쉼표 후 노트삽입
 //       notes.add(Note(leng: note.dulation, pitch: note.pitch, state: 0));
 //       position += note.dulation + note.startPosition.toInt();
@@ -293,13 +294,13 @@
 //   });
 //   return notes;
 // }
-//
+
 // void test(List<Note> notes) {
 //   int maxLengthOfMadi = 4000;
-//
+
 //   List<int> restNotes = [4000, 3000, 2000, 1500, 1000, 750, 500, 375, 250];
 //   int restLength = 7750;
-//
+
 //   restNotes.forEach((nowRest) {
 //     if (maxLengthOfMadi >= nowRest) {
 //       int cnt = (restLength / nowRest).floor();
@@ -312,15 +313,15 @@
 //     }
 //   });
 // }
-//
+
 // /*
 //  * 미디파일 파싱중 쓰는 노트객체
 //  */
-//
+
 // class MidiNote {
 //   int pitch;
 //   double startPosition;
 //   int dulation = 0; // 400 온음표 / 200 2분음표 / 100 4분음표 / 50 8분음표 / 25 16분음표
-//
+
 //   MidiNote({this.pitch, this.startPosition, this.dulation});
 // }
