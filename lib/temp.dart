@@ -39,10 +39,9 @@ class _MyAppState extends State<MyApp> {
 
   Sequence seq;
 
-
   @override
   void initState() {
-    seq =  Sequence(tempo: 120, endBeat: 100);
+    seq = Sequence(tempo: 120, endBeat: 100);
     midiToTracks("assets/midi/wc_test.mid", seq);
     super.initState();
     SystemChrome.setPreferredOrientations([
@@ -53,22 +52,7 @@ class _MyAppState extends State<MyApp> {
     ]);
     detector = Pitchdetector(sampleRate: 44100, sampleSize: 4096);
     isRecording = isRecording;
-    detector.onRecorderStateChanged.listen((event) {
-      if (!isDisposed) {
-        setState(() {
-          pitch = event["pitch"];
-          var temp =pitchScore(song.notes[i].pitch);
-          var temp2= (pitch ?? 0).ceil().toInt();
-          temp2 >=
-              temp &&
-              temp2 <=
-                  temp + 30
-              ? check[i]= 2
-              : check[i] = 3;
-          pitch = 0;
-        });
-      }
-    });
+
   }
 
   @override
@@ -109,46 +93,57 @@ class _MyAppState extends State<MyApp> {
 
   //pitch detector start
   void startRecording() async {
-      await detector.startRecording();
-      if (detector.isRecording) {
-        setState(() {
-          isRecording = true;
-        });
-      }
-      //음표 진행상태 색변경
-      if (!isDisposed) {
-        seq.stop();
-        seq.play();
-        for (i = 0; i < check.length; i++) {
-          if (!isRecording) break;
-          await Future.delayed(
-              Duration(milliseconds: toTempo[i == 0 ? 0 : i - 1]), () {
-            if (isRecording) {
-              if (!isDisposed) {
-                setState(() {
-                  check[i] = 1;
-                });
-              }
-            }
+    await detector.startRecording();
+    if (detector.isRecording) {
+      setState(() {
+        isRecording = true;
+      });
+    }
+    //음표 진행상태 색변경
+    if (!isDisposed) {
+      seq.stop();
+      seq.play();
 
+      detector.onRecorderStateChanged.listen((event) {
+        if (!isDisposed) {
+          setState(() {
+            pitch = event["pitch"];
+            var note = pitchScore(song.notes[i].pitch);
+            print("=======${song.notes[i].pitch}");
+            print("----$note");
+            var input = (pitch ?? 0).ceil().toInt();
+            input >= note && input <= note + 30 ? check[i] = 2 : check[i] = 3;
+            pitch = 0;
           });
-          // row 하나 끝날떄마다 스크롤
-          if (!isDisposed) if (toScroll[i] == 1) {
-            scrollController.scrollTo(
-                index: rownum, duration: Duration(milliseconds: 500));
-            rownum++;
-          }
-          // 음표 pitch체크 색변경
-
         }
+      });
+      for (i = 0; i < check.length; i++) {
+        if (!isRecording) break;
+        await Future.delayed(
+            Duration(milliseconds: toTempo[i == 0 ? 0 : i - 1]), () {
+          if (isRecording) {
+            if (!isDisposed) {
+              setState(() {
+                check[i] = 1;
+              });
+            }
+          }
+        });
+        // row 하나 끝날떄마다 스크롤
+        if (!isDisposed) if (toScroll[i] == 1) {
+          scrollController.scrollTo(
+              index: rownum, duration: Duration(milliseconds: 500));
+          rownum++;
+        }
+        // 음표 pitch체크 색변경
+
       }
-
-
+    }
   }
 
   void stopRecording() async {
-
     detector.stopRecording();
+    rownum=1;
     seq.stop();
     setState(() {
       isRecording = false;
@@ -292,7 +287,6 @@ class _MyAppState extends State<MyApp> {
                     : height * 0.8),
             Container(
               child: RaisedButton(onPressed: () async {
-                print(isRecording);
                 scrollController.scrollTo(
                     index: 0, duration: Duration(milliseconds: 300));
                 return !isRecording ? startRecording() : stopRecording();

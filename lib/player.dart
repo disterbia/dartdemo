@@ -124,7 +124,7 @@ Song midiToSong(String path) {
 }
 
 Song midiToTracks(String path, Sequence seq) {
-  int endBeat = 0;
+  int endBeat = 100;
   int ticksPerBit = 480;
   int nowBPM = 120;
   List<MidiNote> recorderMelodyArr = [];
@@ -159,7 +159,7 @@ Song midiToTracks(String path, Sequence seq) {
             if (instName.toLowerCase().contains("recorder")) {
               recorderLineIndex = i;
               sf2Inst =
-                  Sf2Instrument(path: "assets/Recorder.sf2", isAsset: true);
+                  Sf2Instrument(path: "assets/sf2/Recorder.sf2", isAsset: true);
             }
           } else if (midiEvent is TimeSignatureEvent && !isRhythmSet) {
             TimeSignatureEvent tem = midiEvent;
@@ -172,7 +172,7 @@ Song midiToTracks(String path, Sequence seq) {
 
           // ppp1 pp4 p1 GrandPiano
           if (sf2Inst == null) {
-            sf2Inst = Sf2Instrument(path: "assets/ppp1.sf2", isAsset: true);
+            sf2Inst = Sf2Instrument(path: "assets/sf2/ppp1.sf2", isAsset: true);
           }
         });
         instruments.add(sf2Inst);
@@ -246,19 +246,21 @@ Song midiToTracks(String path, Sequence seq) {
               }
             }
           }
+
+          //반주만 - 2 :0 동시에 - 3 :0.25
           if (trackIndex != recorderLineIndex) {
-            realTracks[trackIndex].addVolumeChange(volume: 4, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 2, beat: 0);
           } else {
-            realTracks[trackIndex].addVolumeChange(volume: 0.7, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 0, beat: 0);
           }
 
           //EndBeat 처리
-          int lastDuration = ((durations.last / ticksPerBit) * 100).ceil() * 10;
-          double lastPosition = startPositions.last / ticksPerBit * 1000;
-          int nowEndBeat = ((lastDuration + lastPosition + 1001) / 1000).ceil();
-          if (nowEndBeat > endBeat) {
-            endBeat = nowEndBeat;
-          }
+          // int lastDuration = ((durations.last / ticksPerBit) * 100).ceil() * 10;
+          // double lastPosition = startPositions.last / ticksPerBit * 1000;
+          // int nowEndBeat = ((lastDuration + lastPosition + 1001) / 1000).ceil();
+          // if (nowEndBeat > endBeat) {
+          //   endBeat = nowEndBeat;
+          // }
           trackIndex++;
         });
         seq.setEndBeat(endBeat.toDouble());
