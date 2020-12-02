@@ -6,7 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_midi_example/model/madi.dart';
 import 'package:flutter_midi_example/model/song.dart';
 import 'package:flutter_midi_example/noteParser.dart';
+import 'package:flutter_midi_example/player.dart';
 import 'package:flutter_midi_example/sheetFunction.dart';
+import 'package:flutter_sequencer/sequence.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pitchdetector/pitchdetector.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -23,6 +25,7 @@ class _MyAppState extends State<MyApp> {
   List<int> toScroll = []; //현재 진행중인 row위치 체크용
   List<int> toTempo = []; // 현재 진행중인 음표의 박자 체크용
   int rownum = 1; // row index
+  int i = 0;
   bool isFirst = true; // initstate 안에 넣을수 없는 최초실행 확인 여부
   Song song;
   bool isDisposed = false; //disopse안에 넣을수 없는 값들을위해  dispose가 되었는지 확인
@@ -34,8 +37,13 @@ class _MyAppState extends State<MyApp> {
   bool isRecording = false;
   double pitch;
 
+  Sequence seq;
+
+
   @override
   void initState() {
+    seq =  Sequence(tempo: 120, endBeat: 100);
+    midiToTracks("assets/midi/wc_test.mid", seq);
     super.initState();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
@@ -49,7 +57,15 @@ class _MyAppState extends State<MyApp> {
       if (!isDisposed) {
         setState(() {
           pitch = event["pitch"];
-          print(pitch);
+          print(pitch ?? 0);
+          pitchScore(song.notes[i].pitch);
+          (pitch ?? 0).ceil().toInt() >=
+              pitchScore(song.notes[i].pitch) &&
+              (pitch ?? 0).ceil().toInt() <=
+                  pitchScore(song.notes[i].pitch) + 30
+              ? check[i] = 2
+              : check[i] = 3;
+          pitch = 0;
         });
       }
     });
@@ -92,53 +108,44 @@ class _MyAppState extends State<MyApp> {
 
   //pitch detector start
   void startRecording() async {
-    await detector.startRecording();
-
-    if (detector.isRecording) {
-      setState(() {
-        isRecording = true;
-      });
-    }
-    //음표 진행상태 색변경
-    if (!isDisposed) {
-      for (var i = 0; i < check.length; i++) {
-        if (!isRecording) break;
-        await Future.delayed(
-            Duration(milliseconds: toTempo[i == 0 ? 0 : i - 1]), () {
-          if (isRecording) {
-            if (!isDisposed) {
-              setState(() {
-                check[i] = 1;
-              });
-            }
-          }
-          Future.delayed(Duration(milliseconds: toTempo[i == 0 ? 0 : i]), () {
-            if (!isDisposed) {
-              if (isRecording) {
+      await detector.startRecording();
+      seq.play();
+      if (detector.isRecording) {
+        setState(() {
+          isRecording = true;
+        });
+      }
+      //음표 진행상태 색변경
+      if (!isDisposed) {
+        for (i = 0; i < check.length; i++) {
+          if (!isRecording) break;
+          await Future.delayed(
+              Duration(milliseconds: toTempo[i == 0 ? 0 : i - 1]), () {
+            if (isRecording) {
+              if (!isDisposed) {
                 setState(() {
-                  print((pitch ?? 0).ceil());
-                  (pitch ?? 0).ceil().toInt() >= pitchScore(song.notes[i].pitch) && (pitch ?? 0).ceil().toInt() <= pitchScore(song.notes[i].pitch) +30
-                      ? check[i] = 2
-                      : check[i] = 3;
-                  pitch = 0;
+                  check[i] = 1;
                 });
               }
             }
-          });
-        });
-        // row 하나 끝날떄마다 스크롤
-        if (!isDisposed) if (toScroll[i] == 1) {
-          scrollController.scrollTo(
-              index: rownum, duration: Duration(milliseconds: 500));
-          rownum++;
-        }
-        // 음표 pitch체크 색변경
 
+          });
+          // row 하나 끝날떄마다 스크롤
+          if (!isDisposed) if (toScroll[i] == 1) {
+            scrollController.scrollTo(
+                index: rownum, duration: Duration(milliseconds: 500));
+            rownum++;
+          }
+          // 음표 pitch체크 색변경
+
+        }
       }
-    }
+
+
   }
 
   void stopRecording() async {
+
     detector.stopRecording();
     setState(() {
       isRecording = false;
@@ -350,7 +357,8 @@ class _MyAppState extends State<MyApp> {
     if (ckIndex == check.length) ckIndex = 0;
     madi.notes.forEach((note) {
       widgets.add(Positioned(
-        bottom: widgetHeight * pitchParser(note.pitch==-1&&note.leng>1500?-2:note.pitch),
+        bottom: widgetHeight *
+            pitchParser(note.pitch == -1 && note.leng > 1500 ? -2 : note.pitch),
         left: nowPosition,
         child: SvgPicture.asset(
           note.pitch < 71

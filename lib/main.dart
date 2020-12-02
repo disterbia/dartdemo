@@ -19,6 +19,7 @@ void main() {
 //도:6레:14미:21파:27솔:34라:40시:47도:54레:64
 class SamplePage extends StatelessWidget {
   Song temp;
+
   var song = {
     0: [
       Note(pitch: 67, leng: 1500),
@@ -157,7 +158,7 @@ class SamplePage extends StatelessWidget {
             RaisedButton(
                 child: Text("비행기"),
                 onPressed: () =>
-                    Navigator.pushNamed(context, "mainPage", arguments: temp)),
+                    Navigator.pushNamed(context, "mainPage", arguments: midiToSong("assets/midi/wc_test.mid"))),
           ],
         ));
   }
