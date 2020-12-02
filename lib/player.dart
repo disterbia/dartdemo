@@ -124,6 +124,7 @@ Song midiToSong(String path) {
 }
 
 Song midiToTracks(String path, Sequence seq) {
+  int endBeat = 0;
   int ticksPerBit = 480;
   int nowBPM = 120;
   List<MidiNote> recorderMelodyArr = [];
@@ -158,7 +159,7 @@ Song midiToTracks(String path, Sequence seq) {
             if (instName.toLowerCase().contains("recorder")) {
               recorderLineIndex = i;
               sf2Inst =
-                  Sf2Instrument(path: "assets/sf2/Recorder.sf2", isAsset: true);
+                  Sf2Instrument(path: "assets/Recorder.sf2", isAsset: true);
             }
           } else if (midiEvent is TimeSignatureEvent && !isRhythmSet) {
             TimeSignatureEvent tem = midiEvent;
@@ -171,7 +172,7 @@ Song midiToTracks(String path, Sequence seq) {
 
           // ppp1 pp4 p1 GrandPiano
           if (sf2Inst == null) {
-            sf2Inst = Sf2Instrument(path: "assets/sf2/ppp1.sf2", isAsset: true);
+            sf2Inst = Sf2Instrument(path: "assets/ppp1.sf2", isAsset: true);
           }
         });
         instruments.add(sf2Inst);
@@ -200,8 +201,10 @@ Song midiToTracks(String path, Sequence seq) {
           double pos = 0;
           int originPos = 0;
 
+          // 20201201 수정됨(SetTempoEvent 추가 - 도돌이표에서 제대로 인식 안돼서)
           midiTrack.forEach((element) {
-            if (element is ControllerEvent ||
+            if (element is SetTempoEvent ||
+                element is ControllerEvent ||
                 element is NoteOnEvent ||
                 element is NoteOffEvent) {
               originPos = originPos + element.deltaTime;
@@ -213,6 +216,7 @@ Song midiToTracks(String path, Sequence seq) {
               velocitys.add(element.velocity);
               startPositions.add(pos);
             }
+
             if (element is NoteOffEvent) {
               double tem = element.deltaTime == 0
                   ? durations[durations.length - 1]
@@ -243,12 +247,21 @@ Song midiToTracks(String path, Sequence seq) {
             }
           }
           if (trackIndex != recorderLineIndex) {
-            realTracks[trackIndex].addVolumeChange(volume: 10, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 4, beat: 0);
           } else {
-            realTracks[trackIndex].addVolumeChange(volume: 2.5, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 0.7, beat: 0);
+          }
+
+          //EndBeat 처리
+          int lastDuration = ((durations.last / ticksPerBit) * 100).ceil() * 10;
+          double lastPosition = startPositions.last / ticksPerBit * 1000;
+          int nowEndBeat = ((lastDuration + lastPosition + 1001) / 1000).ceil();
+          if (nowEndBeat > endBeat) {
+            endBeat = nowEndBeat;
           }
           trackIndex++;
         });
+        seq.setEndBeat(endBeat.toDouble());
 
         song.notes = midiNoteToNote(
             recorderMelodyArr, song.rhythmUpper, song.rhythmUnder);
