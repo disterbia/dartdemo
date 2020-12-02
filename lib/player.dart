@@ -40,7 +40,7 @@ Song midiToSong(String path) {
             if (instName.toLowerCase().contains("recorder")) {
               recorderLineIndex = i;
               sf2Inst =
-                  Sf2Instrument(path: "assets/Recorder.sf2", isAsset: true);
+                  Sf2Instrument(path: "assets/sf2/Recorder.sf2", isAsset: true);
             }
           } else if (midiEvent is TimeSignatureEvent && !isRhythmSet) {
             TimeSignatureEvent tem = midiEvent;
@@ -158,7 +158,7 @@ Song midiToTracks(String path, Sequence seq) {
             if (instName.toLowerCase().contains("recorder")) {
               recorderLineIndex = i;
               sf2Inst =
-                  Sf2Instrument(path: "assets/Recorder.sf2", isAsset: true);
+                  Sf2Instrument(path: "assets/sf2/Recorder.sf2", isAsset: true);
             }
           } else if (midiEvent is TimeSignatureEvent && !isRhythmSet) {
             TimeSignatureEvent tem = midiEvent;
@@ -243,9 +243,9 @@ Song midiToTracks(String path, Sequence seq) {
             }
           }
           if (trackIndex != recorderLineIndex) {
-            realTracks[trackIndex].addVolumeChange(volume: 1, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 10, beat: 0);
           } else {
-            realTracks[trackIndex].addVolumeChange(volume: 0.7, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 2.5, beat: 0);
           }
           trackIndex++;
         });

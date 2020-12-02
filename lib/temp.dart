@@ -57,13 +57,13 @@ class _MyAppState extends State<MyApp> {
       if (!isDisposed) {
         setState(() {
           pitch = event["pitch"];
-          print(pitch ?? 0);
-          pitchScore(song.notes[i].pitch);
-          (pitch ?? 0).ceil().toInt() >=
-              pitchScore(song.notes[i].pitch) &&
-              (pitch ?? 0).ceil().toInt() <=
-                  pitchScore(song.notes[i].pitch) + 30
-              ? check[i] = 2
+          var temp =pitchScore(song.notes[i].pitch);
+          var temp2= (pitch ?? 0).ceil().toInt();
+          temp2 >=
+              temp &&
+              temp2 <=
+                  temp + 30
+              ? check[i]= 2
               : check[i] = 3;
           pitch = 0;
         });
@@ -80,6 +80,7 @@ class _MyAppState extends State<MyApp> {
     //   DeviceOrientation.portraitDown,
     // ]);
     super.dispose();
+
     isDisposed = true;
     if (isRecording == true) detector.stopRecording();
   }
@@ -109,7 +110,6 @@ class _MyAppState extends State<MyApp> {
   //pitch detector start
   void startRecording() async {
       await detector.startRecording();
-      seq.play();
       if (detector.isRecording) {
         setState(() {
           isRecording = true;
@@ -117,6 +117,8 @@ class _MyAppState extends State<MyApp> {
       }
       //음표 진행상태 색변경
       if (!isDisposed) {
+        seq.stop();
+        seq.play();
         for (i = 0; i < check.length; i++) {
           if (!isRecording) break;
           await Future.delayed(
@@ -147,6 +149,7 @@ class _MyAppState extends State<MyApp> {
   void stopRecording() async {
 
     detector.stopRecording();
+    seq.stop();
     setState(() {
       isRecording = false;
       pitch = detector.pitch;
