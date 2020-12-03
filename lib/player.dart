@@ -123,7 +123,22 @@ Song midiToSong(String path) {
   }
 }
 
-Song midiToTracks(String path, Sequence seq) {
+class MidiPlayer {
+  static final MidiPlayer _midiPlayer = MidiPlayer._internal();
+  Sequence sequence;
+
+  factory MidiPlayer() {
+    return _midiPlayer;
+  }
+
+  MidiPlayer._internal() {
+    sequence = Sequence(tempo: 120, endBeat: 100);
+    print("Sequence Init!!!");
+  }
+}
+
+Sequence midiInit(String path, void toDo()) {
+  Sequence seq = MidiPlayer().sequence;
   int endBeat = 100;
   int ticksPerBit = 480;
   int nowBPM = 120;
@@ -249,27 +264,31 @@ Song midiToTracks(String path, Sequence seq) {
 
           //반주만 - 2 :0 동시에 - 3 :0.25
           if (trackIndex != recorderLineIndex) {
-            realTracks[trackIndex].addVolumeChange(volume: 2, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 3, beat: 0);
           } else {
-            realTracks[trackIndex].addVolumeChange(volume: 0, beat: 0);
+            realTracks[trackIndex].addVolumeChange(volume: 0.25, beat: 0);
           }
 
           //EndBeat 처리
-          // int lastDuration = ((durations.last / ticksPerBit) * 100).ceil() * 10;
-          // double lastPosition = startPositions.last / ticksPerBit * 1000;
-          // int nowEndBeat = ((lastDuration + lastPosition + 1001) / 1000).ceil();
-          // if (nowEndBeat > endBeat) {
-          //   endBeat = nowEndBeat;
-          // }
+          if (durations.length > 0) {
+            int lastDuration =
+                ((durations.last / ticksPerBit) * 100).ceil() * 10;
+            double lastPosition = startPositions.last / ticksPerBit * 1000;
+            int nowEndBeat =
+                ((lastDuration + lastPosition + 1001) / 1000).ceil();
+            if (nowEndBeat > endBeat) {
+              endBeat = nowEndBeat;
+            }
+          }
           trackIndex++;
         });
         seq.setEndBeat(endBeat.toDouble());
 
         song.notes = midiNoteToNote(
             recorderMelodyArr, song.rhythmUpper, song.rhythmUnder);
+        toDo();
       });
     });
-    return song;
   } catch (e) {
     print("fuck");
   }
@@ -283,7 +302,7 @@ List<Note> midiNoteToNote(
   maxLengthOfMadi *= rhythmUpper;
   int position = 0;
   midiNote.forEach((note) {
-    print("${note.pitch} ${note.startPosition} ${position}");
+    // print("${note.pitch} ${note.startPosition} ${position}");
     // print("${nowMadiLength} ${note.dulation}");
     if (position == note.startPosition) {
       notes.add(Note(leng: note.dulation, pitch: note.pitch, state: 0));
