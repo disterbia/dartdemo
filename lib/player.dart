@@ -137,7 +137,7 @@ class MidiPlayer {
   }
 }
 
-Sequence midiInit(String path, void toDo()) {
+Sequence midiInit(String path,Song song, void toDo()) {
   Sequence seq = MidiPlayer().sequence;
   int endBeat = 100;
   int ticksPerBit = 480;
@@ -146,7 +146,7 @@ Sequence midiInit(String path, void toDo()) {
   int recorderLineIndex = -1;
   bool isRhythmSet = false;
   bool isBpmSet = false;
-  Song song = Song(
+  song = Song(
       id: 0,
       title: "Untitled",
       tempo: 120,

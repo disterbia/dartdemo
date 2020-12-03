@@ -148,13 +148,7 @@ class SamplePage extends StatelessWidget {
             RaisedButton(
                 child: Text("나비야"),
                 onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: Song(
-                        id: 0,
-                        title: "데모곡",
-                        notes: song[0],
-                        rhythmUnder: 4,
-                        rhythmUpper: 4,
-                        tempo: 120))),
+                    arguments: "assets/midi/wc_test.mid")),
             RaisedButton(
                 child: Text("비행기"),
                 onPressed: () =>

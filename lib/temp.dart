@@ -28,6 +28,7 @@ class _MyAppState extends State<MyApp> {
   int i = 0;
   bool isFirst = true; // initstate 안에 넣을수 없는 최초실행 확인 여부
   Song song;
+  String midiPath;
   bool isDisposed = false; //disopse안에 넣을수 없는 값들을위해  dispose가 되었는지 확인
   ItemScrollController scrollController = ItemScrollController();
 
@@ -42,7 +43,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     seq = Sequence(tempo: 120, endBeat: 100);
-    midiToTracks("assets/midi/wc_test.mid", seq);
+    seq = MidiPlayer().sequence;
     super.initState();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
@@ -52,7 +53,6 @@ class _MyAppState extends State<MyApp> {
     ]);
     detector = Pitchdetector(sampleRate: 44100, sampleSize: 4096);
     isRecording = isRecording;
-
   }
 
   @override
@@ -73,15 +73,37 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     // if (MediaQuery.of(context).orientation == Orientation.portrait)
     //   return Container();
-    song = ModalRoute.of(context).settings.arguments;
-    if (isFirst) {
-      song.notes.forEach((note) {
-        check.add(0);
-        toScroll.add(0);
-        toTempo.add(note.leng * 60 ~/ song.tempo);
-        isFirst = false;
+    midiPath = ModalRoute.of(context).settings.arguments;
+    if(isFirst){
+      midiInit(midiPath,song, (){
+        song.notes.forEach((note) {
+          check.add(0);
+          toScroll.add(0);
+          toTempo.add(note.leng * 60 ~/ song.tempo);
+          isFirst = false;
+        });
       });
     }
+    while(check.length == 0){
+      print("test");
+    }
+
+    return Scaffold(
+        appBar: AppBar(title: Text("악보선택")),
+        body: createSong(8, song, context));
+
+    while(true){
+      Future.delayed(Duration(milliseconds: 300),(){
+        if(song != null && song.notes.length > 0){
+          print("test");
+          return Scaffold(
+              appBar: AppBar(title: Text("악보선택")),
+              body: createSong(8, song, context));
+        }
+      });
+
+    }
+
 
     // song.notes.forEach((note) {
     //   print("${note.leng} ${note.pitch}");
@@ -94,11 +116,13 @@ class _MyAppState extends State<MyApp> {
   //pitch detector start
   void startRecording() async {
     await detector.startRecording();
+
     if (detector.isRecording) {
       setState(() {
         isRecording = true;
       });
     }
+
     //음표 진행상태 색변경
     if (!isDisposed) {
       seq.stop();
@@ -106,26 +130,24 @@ class _MyAppState extends State<MyApp> {
 
       detector.onRecorderStateChanged.listen((event) {
         if (!isDisposed) {
-          Future.delayed(Duration(milliseconds: 1),(){
-            setState(() {
-              pitch = event["pitch"];
-              var note = pitchScore(song.notes[i].pitch);
-              print("=======${song.notes[i].pitch}");
-              print("----$note");
-              var input = (pitch ?? 0).ceil().toInt();
-              input >= note && input <= note + 30 ? check[i] = 2 : check[i] = 3;
-              pitch = 0;
-            });
+          var note = pitchScore(song.notes[i-1].pitch);
+          var input = (pitch ?? 0).ceil().toInt();
+          if(check[i-1]!=2)
+          setState(() {
+            pitch = event["pitch"];
+            print(pitch);
+            input >= note && input <= note + 30 ? check[i-1] = 2 : check[i-1] = 1;
+            pitch = 0;
           });
-
-
         }
       });
 
       for (i = 0; i < check.length; i++) {
         if (!isRecording) break;
+        if(i>0)
+        if(check[i-1]!=2) check[i-1] =3;
         await Future.delayed(
-            Duration(milliseconds: i==0?0:toTempo[i - 1]), () {
+            Duration(milliseconds: i == 0 ? 0 : toTempo[i - 1]), () {
           if (isRecording) {
             if (!isDisposed) {
               setState(() {
@@ -148,7 +170,7 @@ class _MyAppState extends State<MyApp> {
 
   void stopRecording() async {
     detector.stopRecording();
-    rownum=1;
+    rownum = 1;
     seq.stop();
     setState(() {
       isRecording = false;
