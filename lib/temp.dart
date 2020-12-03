@@ -24,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   List<int> check = []; //음표 진행상태, 점수 체크용
   List<int> toScroll = []; //현재 진행중인 row위치 체크용
   List<int> toTempo = []; // 현재 진행중인 음표의 박자 체크용
+  List<int> temp = []; //음표 진행상태, 점수 체크용
   int rownum = 1; // row index
   int i = 0;
   bool isFirst = true; // initstate 안에 넣을수 없는 최초실행 확인 여부
@@ -76,6 +77,7 @@ class _MyAppState extends State<MyApp> {
     if (isFirst) {
       song.notes.forEach((note) {
         check.add(0);
+        temp.add(0);
         toScroll.add(0);
         toTempo.add(note.leng * 60 ~/ song.tempo);
         isFirst = false;
@@ -104,33 +106,47 @@ class _MyAppState extends State<MyApp> {
 
       detector.onRecorderStateChanged.listen((event) {
         if (!isDisposed) {
-          var note = pitchScore(song.notes[i - 1].pitch);
-          var input = (pitch ?? 0).ceil().toInt();
-          if (check[i - 1] != 2)
+          if(i==0 && check[0]==1){
             setState(() {
               pitch = event["pitch"];
-              print(pitch);
-              input >= note && input <= note + 30
-                  ? check[i - 1] = 2
-                  : check[i - 1] = 1;
+              var note = pitchScore(song.notes[0].pitch);
+              var input = (pitch ?? 0).ceil().toInt();
+              input >= note && input <= note + 30 ? check[0] = 2 : check[0] = 1;
               pitch = 0;
             });
+          }else if(check[i]==1){
+            setState(() {
+              pitch = event["pitch"];
+              var note = pitchScore(song.notes[i].pitch);
+              var input = (pitch ?? 0).ceil().toInt();
+              input >= note && input <= note + 30 ? temp[i] = 2 : temp[i] = 3;
+              pitch = 0;
+            });
+          }
         }
       });
 
       for (i = 0; i < check.length; i++) {
         if (!isRecording) break;
-        if (i > 0) if (check[i - 1] != 2) check[i - 1] = 3;
-        await Future.delayed(
-            Duration(milliseconds: i == 0 ? 0 : toTempo[i - 1]), () {
-          if (isRecording) {
-            if (!isDisposed) {
-              setState(() {
-                check[i] = 1;
-              });
+        if(i==0){
+          setState(() {
+            check[0] = 1;
+          });
+        }else
+          await Future.delayed(
+              Duration(milliseconds:toTempo[i - 1]), () {
+            if (isRecording) {
+              if (!isDisposed) {
+                setState(() {
+                    check[i] = 1;
+                    if(temp[i-1]==2)
+                      check[i-1]=2;
+                    else check[i-1] =3;
+                });
+              }
             }
-          }
-        });
+          });
+
         // row 하나 끝날떄마다 스크롤
         if (!isDisposed) if (toScroll[i] == 1) {
           scrollController.scrollTo(

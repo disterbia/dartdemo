@@ -128,28 +128,28 @@ double pitchScore(int pitch) {
       return 2 / 14; //도#
       break;
     case 74:
-      return 3 / 14; //레
+      return 1100; //레
       break;
     case 75:
       return 3 / 14; //레#
       break;
     case 76:
-      return 4 / 14; //미
+      return 1200; //미
       break;
     case 77:
-      return 5 / 14; //파
+      return 1300; //파
       break;
     case 78:
       return 5 / 14; //파#
       break;
     case 79:
-      return 6 / 14; //솔
+      return 1400; //솔
       break;
     case 80:
       return 6 / 14; //솔#
       break;
     case 81:
-      return 7 / 14; //라
+      return 1500; //라
       break;
     case 82:
       return 7 / 14; //라#
