@@ -1,9 +1,11 @@
 double pitchParser(int pitch) {
   switch (pitch) {
     case -1:
-      return 5/14;
+      return 5 / 14;
+      break;
     case -2:
-      return 7/14;
+      return 7 / 14;
+      break;
     case 60:
       return 1 / 16; //도
       break;
@@ -74,7 +76,9 @@ double pitchParser(int pitch) {
       return 7 / 14; //라#
       break;
   }
+  return 7 / 14;
 }
+
 double pitchScore(int pitch) {
   switch (pitch) {
     case -1:

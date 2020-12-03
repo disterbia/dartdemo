@@ -147,13 +147,27 @@ class SamplePage extends StatelessWidget {
           children: [
             RaisedButton(
                 child: Text("나비야"),
-                onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: "assets/midi/wc_test.mid")),
+                onPressed: () {
+                  navi("assets/midi/wc_test.mid", context);
+                }),
             RaisedButton(
                 child: Text("비행기"),
-                onPressed: () =>
-                    Navigator.pushNamed(context, "mainPage", arguments: midiToSong("assets/midi/wc_test.mid"))),
+                onPressed: () => Navigator.pushNamed(context, "mainPage",
+                    arguments: midiToSong("assets/midi/wc_test.mid"))),
           ],
         ));
+  }
+
+  void navi(String path, BuildContext context) {
+    Song song = Song(
+        id: 0,
+        title: "Untitled",
+        tempo: 120,
+        notes: [],
+        rhythmUnder: 4,
+        rhythmUpper: 4);
+    midiInit(path, song, () {
+      Navigator.pushNamed(context, "mainPage", arguments: song);
+    });
   }
 }

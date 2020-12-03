@@ -42,7 +42,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    seq = Sequence(tempo: 120, endBeat: 100);
     seq = MidiPlayer().sequence;
     super.initState();
     SystemChrome.setPreferredOrientations([
@@ -73,41 +72,16 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     // if (MediaQuery.of(context).orientation == Orientation.portrait)
     //   return Container();
-    midiPath = ModalRoute.of(context).settings.arguments;
-    if(isFirst){
-      midiInit(midiPath,song, (){
-        song.notes.forEach((note) {
-          check.add(0);
-          toScroll.add(0);
-          toTempo.add(note.leng * 60 ~/ song.tempo);
-          isFirst = false;
-        });
+    song = ModalRoute.of(context).settings.arguments;
+    if (isFirst) {
+      song.notes.forEach((note) {
+        check.add(0);
+        toScroll.add(0);
+        toTempo.add(note.leng * 60 ~/ song.tempo);
+        isFirst = false;
       });
     }
-    while(check.length == 0){
-      print("test");
-    }
 
-    return Scaffold(
-        appBar: AppBar(title: Text("악보선택")),
-        body: createSong(8, song, context));
-
-    while(true){
-      Future.delayed(Duration(milliseconds: 300),(){
-        if(song != null && song.notes.length > 0){
-          print("test");
-          return Scaffold(
-              appBar: AppBar(title: Text("악보선택")),
-              body: createSong(8, song, context));
-        }
-      });
-
-    }
-
-
-    // song.notes.forEach((note) {
-    //   print("${note.leng} ${note.pitch}");
-    // });
     return Scaffold(
         appBar: AppBar(title: Text("악보선택")),
         body: createSong(8, song, context));
@@ -130,22 +104,23 @@ class _MyAppState extends State<MyApp> {
 
       detector.onRecorderStateChanged.listen((event) {
         if (!isDisposed) {
-          var note = pitchScore(song.notes[i-1].pitch);
+          var note = pitchScore(song.notes[i - 1].pitch);
           var input = (pitch ?? 0).ceil().toInt();
-          if(check[i-1]!=2)
-          setState(() {
-            pitch = event["pitch"];
-            print(pitch);
-            input >= note && input <= note + 30 ? check[i-1] = 2 : check[i-1] = 1;
-            pitch = 0;
-          });
+          if (check[i - 1] != 2)
+            setState(() {
+              pitch = event["pitch"];
+              print(pitch);
+              input >= note && input <= note + 30
+                  ? check[i - 1] = 2
+                  : check[i - 1] = 1;
+              pitch = 0;
+            });
         }
       });
 
       for (i = 0; i < check.length; i++) {
         if (!isRecording) break;
-        if(i>0)
-        if(check[i-1]!=2) check[i-1] =3;
+        if (i > 0) if (check[i - 1] != 2) check[i - 1] = 3;
         await Future.delayed(
             Duration(milliseconds: i == 0 ? 0 : toTempo[i - 1]), () {
           if (isRecording) {
