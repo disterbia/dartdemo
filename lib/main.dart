@@ -22,7 +22,7 @@ class SamplePage extends StatelessWidget {
 
   var song = {
     0: [
-      Note(pitch: 67, leng: 1500),
+      Note(pitch: 67, leng: 4000),
       Note(pitch: 67, leng: 1000),
       Note(pitch: 67, leng: 500),
       Note(pitch: 67, leng: 250),

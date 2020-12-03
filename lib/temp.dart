@@ -106,21 +106,26 @@ class _MyAppState extends State<MyApp> {
 
       detector.onRecorderStateChanged.listen((event) {
         if (!isDisposed) {
-          setState(() {
-            pitch = event["pitch"];
-            var note = pitchScore(song.notes[i].pitch);
-            print("=======${song.notes[i].pitch}");
-            print("----$note");
-            var input = (pitch ?? 0).ceil().toInt();
-            input >= note && input <= note + 30 ? check[i] = 2 : check[i] = 3;
-            pitch = 0;
+          Future.delayed(Duration(milliseconds: 1),(){
+            setState(() {
+              pitch = event["pitch"];
+              var note = pitchScore(song.notes[i].pitch);
+              print("=======${song.notes[i].pitch}");
+              print("----$note");
+              var input = (pitch ?? 0).ceil().toInt();
+              input >= note && input <= note + 30 ? check[i] = 2 : check[i] = 3;
+              pitch = 0;
+            });
           });
+
+
         }
       });
+
       for (i = 0; i < check.length; i++) {
         if (!isRecording) break;
         await Future.delayed(
-            Duration(milliseconds: toTempo[i == 0 ? 0 : i - 1]), () {
+            Duration(milliseconds: i==0?0:toTempo[i - 1]), () {
           if (isRecording) {
             if (!isDisposed) {
               setState(() {
