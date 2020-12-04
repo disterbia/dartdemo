@@ -18,7 +18,6 @@ void main() {
 
 //도:6레:14미:21파:27솔:34라:40시:47도:54레:64
 class SamplePage extends StatelessWidget {
-  Song temp;
 
   @override
   Widget build(BuildContext context) {

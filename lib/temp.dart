@@ -38,7 +38,6 @@ class _MyAppState extends State<MyApp> {
   Pitchdetector detector;
   bool isRecording = false;
   double pitch;
-
   Sequence seq;
 
   @override
@@ -64,8 +63,8 @@ class _MyAppState extends State<MyApp> {
     //   DeviceOrientation.portraitDown,
     // ]);
     super.dispose();
-
     isDisposed = true;
+    seq.stop();
     if (isRecording == true) detector.stopRecording();
   }
 
@@ -73,7 +72,10 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     // if (MediaQuery.of(context).orientation == Orientation.portrait)
     //   return Container();
-    song = ModalRoute.of(context).settings.arguments;
+    song = ModalRoute
+        .of(context)
+        .settings
+        .arguments;
     if (isFirst) {
       song.notes.forEach((note) {
         check.add(0);
@@ -82,6 +84,8 @@ class _MyAppState extends State<MyApp> {
         toTempo.add(note.leng * 60 ~/ song.tempo);
         isFirst = false;
       });
+      check.add(0);
+      temp.add(0);
     }
 
     return Scaffold(
@@ -101,38 +105,49 @@ class _MyAppState extends State<MyApp> {
 
     //음표 진행상태 색변경
     if (!isDisposed) {
-      seq.stop();
-      seq.play();
-
+      if(!isDisposed){
+        seq.stop();
+        seq.play();
+      }
       detector.onRecorderStateChanged.listen((event) {
         if (!isDisposed) {
-            setState(() {
-              pitch = event["pitch"];
-              var note = pitchScore(song.notes[i==0?0:i-1].pitch);
-              var input = (pitch ?? 0).ceil().toInt();
-              if(check[i==0?0:i-1]==1)
-              input >= note && input <= note + 30 ? temp[i==0?0:i-1] = 2 : temp[i==0?0:i-1] = 3;
-              pitch = 0;
-            });
+          setState(() {
+            pitch = event["pitch"];
+            var note = pitchScore(song.notes[i - 1].pitch);
+            var input = (pitch ?? 0);
+            if (i > 0){
+              if (song.notes[i - 1].pitch != -1){
+                input+500.0 >= note && input <= note ? temp[i - 1] = 2 : temp[i - 1] = 3;
+                print("note:$note");
+                print("input:$input");
+              }
+              else
+                temp[i - 1] = 2;
+            }
+
+          });
         }
       });
 
       for (i = 0; i < check.length; i++) {
         if (!isRecording) break;
-          await Future.delayed(
-              Duration(milliseconds:i==0?0:toTempo[i - 1]), () {
-            if (isRecording) {
-              if (!isDisposed) {
-                setState(() {
-                  check[i] = 1;
-                  if(temp[i==0?0:i-1]==2)
-                    check[i==0?0:i-1]=2;
-                  else if(temp[i==0?0:i-1]==3)
-                    check[i==0?0:i-1] =3;
-                });
-              }
+        await Future.delayed(
+            Duration(milliseconds: i == 0 ? 0 : toTempo[i - 1]), () {
+          if (isRecording) {
+            if (!isDisposed) {
+              setState(() {
+                check[i] = 1;
+                if (i > 0) {
+                  if (temp[i - 1] == 2)
+                    check[i - 1] = 2;
+                  else
+                    check[i - 1] = 3;
+                  if (song.notes[i - 1].pitch == -1) check[i - 1] = 2;
+                }
+              });
             }
-          });
+          }
+        });
 
         // row 하나 끝날떄마다 스크롤
         if (!isDisposed) if (toScroll[i] == 1) {
@@ -167,7 +182,10 @@ class _MyAppState extends State<MyApp> {
   * */
   Widget createSong(int maxNotesInLine, Song song, BuildContext context) {
     //한마디에 총 허용되는 노트(1000 = 4분음표 1개)
-    var height = MediaQuery.of(context).size.height;
+    var height = MediaQuery
+        .of(context)
+        .size
+        .height;
     var maxOfMadi = 4000 * song.rhythmUpper / song.rhythmUnder;
     List<Madi> madiList = [];
     madiList.add(Madi(
@@ -199,7 +217,10 @@ class _MyAppState extends State<MyApp> {
       }
     });
     List<Row> rows = [];
-    var deviceWidth = MediaQuery.of(context).size.width;
+    var deviceWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     //print(madiList.length);
 
@@ -245,7 +266,7 @@ class _MyAppState extends State<MyApp> {
       int cnt = madis.length;
       double firstWidth = cnt > 1 ? deviceWidth / cnt * 1.17 : deviceWidth;
       double otherWidth =
-          cnt > 1 ? (deviceWidth - firstWidth) / (cnt - 1) : deviceWidth;
+      cnt > 1 ? (deviceWidth - firstWidth) / (cnt - 1) : deviceWidth;
       List<Widget> temRowItem = [];
       for (int i = 0; i < cnt; i++) {
         double widthSize = 0;
@@ -352,11 +373,11 @@ class _MyAppState extends State<MyApp> {
     var interval = madi.rhythmUnder == 4
         ? (endPosition - startPosition) / madi.rhythmUpper
         : (endPosition - startPosition) /
-            madi.rhythmUpper *
-            madi.rhythmUnder /
-            4;
+        madi.rhythmUpper *
+        madi.rhythmUnder /
+        4;
 
-    if (ckIndex == check.length) ckIndex = 0;
+    if (ckIndex == check.length-1) ckIndex = 0;
     madi.notes.forEach((note) {
       widgets.add(Positioned(
         bottom: widgetHeight *
@@ -365,31 +386,31 @@ class _MyAppState extends State<MyApp> {
         child: SvgPicture.asset(
           note.pitch < 71
               ? note.pitch == -1
-                  ? "assets/rest${note.leng}.svg"
-                  : note.pitch != 60
-                      ? "assets/note${note.leng}.svg"
-                      : "assets/note${note.leng}_c.svg"
+              ? "assets/rest${note.leng}.svg"
               : note.pitch != 60
-                  ? "assets/note${note.leng}_2.svg"
-                  : "assets/note${note.leng}_2c.svg",
+              ? "assets/note${note.leng}.svg"
+              : "assets/note${note.leng}_c.svg"
+              : note.pitch != 60
+              ? "assets/note${note.leng}_2.svg"
+              : "assets/note${note.leng}_2c.svg",
           color: check[ckIndex] == 0
               ? Colors.black
               : check[ckIndex] == 1
-                  ? Colors.orange
-                  : check[ckIndex] == 2
-                      ? Colors.greenAccent
-                      : Colors.red,
+              ? Colors.orange
+              : check[ckIndex] == 2
+              ? Colors.greenAccent
+              : Colors.red,
           height: note.pitch != -1
               ? note.leng == 4000
-                  ? widgetHeight / 10
-                  : widgetHeight / 2
+              ? widgetHeight / 10
+              : widgetHeight / 2
               : note.leng < 500
-                  ? widgetHeight / 3
-                  : note.leng < 1000
-                      ? widgetHeight / 4
-                      : note.leng < 2000
-                          ? widgetHeight / 3
-                          : widgetHeight / 9,
+              ? widgetHeight / 3
+              : note.leng < 1000
+              ? widgetHeight / 4
+              : note.leng < 2000
+              ? widgetHeight / 3
+              : widgetHeight / 9,
         ),
       ));
       nowPosition = nowPosition + note.leng / 1000 * interval;
