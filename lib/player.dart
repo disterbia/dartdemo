@@ -4,6 +4,7 @@ import 'package:flutter_sequencer/sequence.dart';
 import 'package:flutter_sequencer/instrument.dart';
 import 'package:dart_midi/dart_midi.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_sequencer/track.dart';
 
 Song midiToSong(String path) {
   int ticksPerBit = 480;
@@ -146,6 +147,11 @@ Sequence midiInit(String path, Song song, void toDo()) {
   int recorderLineIndex = -1;
   bool isRhythmSet = false;
   bool isBpmSet = false;
+  if (!(seq.getTracks().isEmpty)) {
+    List<Track> tracks = seq.getTracks();
+
+    tracks.removeRange(0, tracks.length - 1);
+  }
 
   try {
     rootBundle.load(path).then((value) {
