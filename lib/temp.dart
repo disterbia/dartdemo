@@ -106,42 +106,29 @@ class _MyAppState extends State<MyApp> {
 
       detector.onRecorderStateChanged.listen((event) {
         if (!isDisposed) {
-          if(i==0 && check[0]==1){
             setState(() {
               pitch = event["pitch"];
-              var note = pitchScore(song.notes[0].pitch);
+              var note = pitchScore(song.notes[i==0?0:i-1].pitch);
               var input = (pitch ?? 0).ceil().toInt();
-              input >= note && input <= note + 30 ? check[0] = 2 : check[0] = 1;
+              if(check[i==0?0:i-1]==1)
+              input >= note && input <= note + 30 ? temp[i==0?0:i-1] = 2 : temp[i==0?0:i-1] = 3;
               pitch = 0;
             });
-          }else if(check[i]==1){
-            setState(() {
-              pitch = event["pitch"];
-              var note = pitchScore(song.notes[i].pitch);
-              var input = (pitch ?? 0).ceil().toInt();
-              input >= note && input <= note + 30 ? temp[i] = 2 : temp[i] = 3;
-              pitch = 0;
-            });
-          }
         }
       });
 
       for (i = 0; i < check.length; i++) {
         if (!isRecording) break;
-        if(i==0){
-          setState(() {
-            check[0] = 1;
-          });
-        }else
           await Future.delayed(
-              Duration(milliseconds:toTempo[i - 1]), () {
+              Duration(milliseconds:i==0?0:toTempo[i - 1]), () {
             if (isRecording) {
               if (!isDisposed) {
                 setState(() {
-                    check[i] = 1;
-                    if(temp[i-1]==2)
-                      check[i-1]=2;
-                    else check[i-1] =3;
+                  check[i] = 1;
+                  if(temp[i==0?0:i-1]==2)
+                    check[i==0?0:i-1]=2;
+                  else if(temp[i==0?0:i-1]==3)
+                    check[i==0?0:i-1] =3;
                 });
               }
             }

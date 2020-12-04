@@ -40,14 +40,19 @@ class SamplePage extends StatelessWidget {
         body: Column(
           children: [
             RaisedButton(
-                child: Text("나비야"),
+                child: Text("test"),
                 onPressed: () {
                   navi("assets/midi/wc_test.mid", context);
                 }),
             RaisedButton(
-                child: Text("비행기"),
-                onPressed: () => Navigator.pushNamed(context, "mainPage",
-                    arguments: midiToSong("assets/midi/wc_test.mid"))),
+                child: Text("뻐꾸끼"),
+                onPressed: () => navi("assets/midi/bug.mid", context)),
+            RaisedButton(
+                child: Text("징글벨"),
+                onPressed: () => navi("assets/midi/JingleBell.mid", context)),
+            RaisedButton(
+                child: Text("행진"),
+                onPressed: () => navi("assets/midi/run.mid", context)),
           ],
         ));
   }
